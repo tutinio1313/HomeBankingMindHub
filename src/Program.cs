@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore.SqlServer;
-using HomeBankingMindHub.Database;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
+
+using HomeBankingMindHub.Database;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +11,8 @@ builder.Services.AddRazorPages();
 builder.Services.AddDbContext<HomeBankingContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("HomeBankingConnection")));
 
 var app = builder.Build();
+
+DBInitialazer.LoadUsers(app);
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
