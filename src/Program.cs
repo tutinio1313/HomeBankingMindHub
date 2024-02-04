@@ -3,16 +3,27 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
 using HomeBankingMindHub.Database;
+using HomeBankingMindHub.Database.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
-builder.Services.AddDbContext<HomeBankingContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("HomeBankingConnection")));
+builder.Services.AddDbContext<HomeBankingContext>(options =>
+{
+    options.UseSqlServer(
+    builder.Configuration.GetConnectionString("HomeBankingConnection"));
+    options.EnableDetailedErrors();
+    options.EnableSensitiveDataLogging();
+});
+
+builder.Services.AddScoped<IClientRepository, ClientRepository>();
 
 var app = builder.Build();
 
-DBInitialazer.LoadUsers(app);
+DBInitialazer.CreateContext(app);
+DBInitialazer.LoadUsers();
+DBInitialazer.LoadAccounts();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -30,5 +41,6 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.MapRazorPages();
+app.MapControllers();
 
 app.Run();
