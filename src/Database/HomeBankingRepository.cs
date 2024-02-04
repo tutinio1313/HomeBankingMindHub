@@ -7,5 +7,7 @@ public class HomeBankingRepository : IHomeBankingRepository
     public HomeBankingRepository(HomeBankingContext context){
         _context = context;
     }    
-    public IQueryable<User> Users => _context.Users;
+    public IQueryable<Client> Clients => _context.Clients;
+    public IQueryable<Account> Accounts => _context.Accounts;
+    
 }

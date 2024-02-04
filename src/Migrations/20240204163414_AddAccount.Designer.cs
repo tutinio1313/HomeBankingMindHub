@@ -4,6 +4,7 @@ using HomeBankingMindHub.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HomeBankingMindHub.Migrations
 {
     [DbContext(typeof(HomeBankingContext))]
-    partial class HomeBankingContextModelSnapshot : ModelSnapshot
+    [Migration("20240204163414_AddAccount")]
+    partial class AddAccount
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,25 +33,21 @@ namespace HomeBankingMindHub.Migrations
                     b.Property<double>("Balance")
                         .HasColumnType("float");
 
-                    b.Property<string>("ClientGuid")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<DateTime>("CreationTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Number")
+                    b.Property<string>("UserGuid")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ClientGuid");
+                    b.HasIndex("UserGuid");
 
                     b.ToTable("Accounts");
                 });
 
-            modelBuilder.Entity("HomeBankingMindHub.Model.Entity.Client", b =>
+            modelBuilder.Entity("HomeBankingMindHub.Model.Entity.User", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -71,21 +70,21 @@ namespace HomeBankingMindHub.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Clients");
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("HomeBankingMindHub.Model.Entity.Account", b =>
                 {
-                    b.HasOne("HomeBankingMindHub.Model.Entity.Client", "Client")
+                    b.HasOne("HomeBankingMindHub.Model.Entity.User", "User")
                         .WithMany("Accounts")
-                        .HasForeignKey("ClientGuid")
+                        .HasForeignKey("UserGuid")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Client");
+                    b.Navigation("User");
                 });
 
-            modelBuilder.Entity("HomeBankingMindHub.Model.Entity.Client", b =>
+            modelBuilder.Entity("HomeBankingMindHub.Model.Entity.User", b =>
                 {
                     b.Navigation("Accounts");
                 });

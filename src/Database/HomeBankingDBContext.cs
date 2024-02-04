@@ -6,5 +6,6 @@ namespace HomeBankingMindHub.Database;
 public class HomeBankingContext : DbContext
 {
     public HomeBankingContext(DbContextOptions<HomeBankingContext> options) : base(options) { }
-    public DbSet<User> Users {get;set;}
+    public DbSet<Client> Clients {get;set;}
+    public DbSet<Account> Accounts {get;set;}
 }

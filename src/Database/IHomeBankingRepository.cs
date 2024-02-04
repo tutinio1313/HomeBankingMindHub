@@ -5,5 +5,6 @@ namespace HomeBankingMindHub.Database;
 
 public interface IHomeBankingRepository
 {
-    IQueryable<User> Users {get;}
+    IQueryable<Client> Clients {get;}
+    IQueryable<Account> Accounts {get;}
 }
