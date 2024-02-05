@@ -5,8 +5,8 @@ namespace HomeBankingMindHub.Model.DTO;
 
 public class AccountDTO
 {
-    public int ID {get;set;}
-    public string Number {get; set;}
+    public string ID {get;set;} = string.Empty;
+    public string Number {get; set;} = string.Empty;
     public DateTime CreationTime {get;set;}
     public double Balance {get; set;} = 0.00;
 

@@ -11,7 +11,9 @@ public abstract class Repository<T> : IRepository<T> where T : class
 
     public IQueryable<T> FindAll() => context.Set<T>();
 
+    #pragma warning disable
     public IQueryable<T> FindAll(Func<IQueryable<T>, IIncludableQueryable<T, object>> includes = null)
+    #pragma warning restore
     {
         IQueryable<T> queryable = context.Set<T>();
 
@@ -29,5 +31,5 @@ public abstract class Repository<T> : IRepository<T> where T : class
     public void Update(T entity) => context.Set<T>().Update(entity);
     public void Delete(T entity) => context.Set<T>().Remove(entity);
 
-    public void SaveChanges() { context.SaveChanges(); }
+    public int SaveChanges() => context.SaveChanges();
 }
