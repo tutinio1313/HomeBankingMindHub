@@ -13,9 +13,9 @@ public class Client
     public required string LastName { get; set; }
     public required string Email { get; set; }
     public required string Password { get; set; }
-    
+
     // [NotMapped]
-    #pragma warning disable
-    public ICollection<Account> Accounts { get; set; }
-    #pragma warning restore
+
+    public ICollection<Account>? Accounts { get; set; }
+    public ICollection<ClientsLoan>? Loans { get; set; }
 }

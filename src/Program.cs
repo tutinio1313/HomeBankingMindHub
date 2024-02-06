@@ -27,9 +27,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-DBInitialazer.CreateContext(app);
-DBInitialazer.LoadUsers();
-DBInitialazer.LoadAccounts();
+DBInitialazer.PopulateDB(app);
 
 //DBInitialazer.SetAccountBalance();
 
