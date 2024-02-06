@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace HomeBankingMindHub.Model.Entity;
 
@@ -13,4 +14,7 @@ public class Account
     [ForeignKey("Client")]
     public required string ClientGuid {get;set;}
     public required Client Client {get; set;}
+    public IEnumerable<Transaction>? Transactions {get;set;}
+
+    public void SetBalance(double amount) => Balance +=amount;
 }

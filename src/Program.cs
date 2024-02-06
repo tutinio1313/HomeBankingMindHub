@@ -31,6 +31,8 @@ DBInitialazer.CreateContext(app);
 DBInitialazer.LoadUsers();
 DBInitialazer.LoadAccounts();
 
+//DBInitialazer.SetAccountBalance();
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {

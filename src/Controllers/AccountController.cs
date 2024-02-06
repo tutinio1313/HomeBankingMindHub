@@ -14,21 +14,62 @@ namespace HomeBankingMindHub.Controllers
         private readonly IAccountRepository accountRepository = accountRepository;
 
         [HttpGet]
-        public ActionResult<IEnumerable<Account>> Get()
+        public ActionResult<IEnumerable<AccountDTO>> Get()
         {
             var accounts = accountRepository.GetAllAccounts();
 
             if(accounts is not null) {
-                return accounts.ToArray();
+                
+                AccountDTO[] accountDTOs = new AccountDTO[accounts.Count()];
+                int index = 0;
+
+                foreach(Account account in accounts) {
+                    accountDTOs[0] = new() {
+                        ID = account.Id,
+                        Number = account.Number,
+                        CreationTime = account.CreationTime,
+                        Balance = account.Balance,
+
+                        Transactions = account.Transactions.Select( transaction => new TransactionDTO {
+                            ID = transaction.ID,
+                            Type = transaction.Type,
+                            Amount = transaction.Amount,
+                            Description = transaction.Description,
+                            Date = transaction.Date,
+                            AccountId = transaction.AccountId
+                        })
+                    };
+                }
             }
             return Ok("No hay cuentas creadas.");
         }
         
 
         [HttpGet("{id}")]
-        public ActionResult<string> Get(int id)
+        public ActionResult<Account> Get(string id)
         {
-            return "value";
+            Account? account = accountRepository.FindByID(id);
+
+            if(account is not null) 
+            {
+                return Ok( new AccountDTO {
+                    ID = account.Id,
+                    Number = account.Number,
+                    CreationTime = account.CreationTime,
+                    Balance = account.Balance,
+
+                    Transactions = account.Transactions.Select( transaction => new TransactionDTO {
+                            ID = transaction.ID,
+                            Type = transaction.Type,
+                            Amount = transaction.Amount,
+                            Description = transaction.Description,
+                            Date = transaction.Date,
+                            AccountId = transaction.AccountId
+                        })
+                });
+            }
+
+            return Ok("La cuenta no se ha encontrado.");
         }
 
         [HttpPost]
