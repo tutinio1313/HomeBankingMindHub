@@ -10,8 +10,8 @@
 ## Iterations
 - [x] 1 - Initial configs.
 - [x] 2 - Account implementation. 
-- [ ] <b>3 - Transactions implementation. <- WIP</b>
-- [ ] 4 - Cards implementation.
+- [x] 3 - Transactions implementation.
+- [ ] <b>4 - Cards implementation. (WIP) </b>
 - [ ] 5 - Loans implementation.
 - [ ] 6 - Client registration implementation.
 - [ ] 7 - Clients transactions implementation.
