@@ -1,0 +1,31 @@
+ClassDiagram [frame=true framecolor=steelblue label="Class Diagram"] {
+ abstract class Client {
+  private ID : string
+  private FirstName : string
+  private LastName : string
+  private Email : string
+  private password : string
+  private accounts : "Account[]"
+ }
+  
+  abstract class Account {
+  private IDAccount : string
+  private Number : string
+  private CreationTime : DateTime
+  private Balance : double
+  private Client : Client
+  private clientID : string
+ }
+  
+  abstract class Transaction {
+	private Type : string
+  private Amount : double
+ 	private Descripition : string
+  private DateTime : DateTime
+  private Account : stringe
+  }
+  
+  Client '1' -- '0..1' Account;
+  Account '1' -- '0..1' Transaction;
+  
+}
