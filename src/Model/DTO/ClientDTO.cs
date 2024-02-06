@@ -11,5 +11,6 @@ public class ClientDTO
     public required string Email { get; set; }
     #pragma warning disable   
     public ICollection<AccountDTO> Accounts { get; set; }
+    public ICollection<ClientsLoanDTO> Loans { get; set; }
     #pragma warning restore 
 }

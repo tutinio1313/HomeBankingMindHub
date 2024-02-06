@@ -12,9 +12,9 @@ namespace HomeBankingMindHub.Controllers;
 [ApiController]
 public class ClientController(IClientRepository clientRepository) : ControllerBase
 {
-    #pragma warning disable
+#pragma warning disable
     private readonly IClientRepository _clientRepository = clientRepository;
-    #pragma warning restore
+#pragma warning restore
 
     [HttpGet]
     public ActionResult<IEnumerable<Client>> Get()
@@ -43,6 +43,15 @@ public class ClientController(IClientRepository clientRepository) : ControllerBa
                             Number = account.Number,
                             CreationTime = account.CreationTime,
                             Balance = account.Balance
+                        }).ToArray(),
+
+                        Loans = client.Loans.Select(loan => new ClientsLoanDTO
+                        {
+                            ID = loan.ID,
+                            LoanID = loan.LoanID,
+                            Name = loan.Loan.Name,
+                            Amount = loan.Amount,
+                            Payments = loan.Payment
                         }).ToArray()
                     };
                     index++;
@@ -82,8 +91,16 @@ public class ClientController(IClientRepository clientRepository) : ControllerBa
                     Number = account.Number,
                     CreationTime = account.CreationTime,
                     Balance = account.Balance
-                }).ToArray()
+                }).ToArray(),
 
+                Loans = client.Loans.Select(loan => new ClientsLoanDTO
+                {
+                    ID = loan.ID,
+                    LoanID = loan.LoanID,
+                    Name = loan.Loan.Name,
+                    Amount = loan.Amount,
+                    Payments = loan.Payment
+                }).ToArray()
             });
         }
         return Ok("No se ha encontrado el cliente.");
@@ -94,10 +111,12 @@ public class ClientController(IClientRepository clientRepository) : ControllerBa
     {
         bool userEmailExists = clientRepository.FindByEmail(model.Email) is not null;
 
-        if(!userEmailExists) {
+        if (!userEmailExists)
+        {
             try
             {
-                int result = clientRepository.Save( new()   {
+                int result = clientRepository.Save(new()
+                {
                     Id = Guid.NewGuid().ToString(),
                     FirstName = model.FirstName,
                     LastName = model.LastName,
@@ -107,11 +126,13 @@ public class ClientController(IClientRepository clientRepository) : ControllerBa
 
                 //The result means the entity amount changes on DB, that's the reason about the following condition.
 
-                if(result >= 1) {
+                if (result >= 1)
+                {
                     return Created();
 
                 }
-                else {
+                else
+                {
                     return Ok("Algo ha salido mal creando el usuario.");
                 }
 
@@ -121,9 +142,10 @@ public class ClientController(IClientRepository clientRepository) : ControllerBa
                 return StatusCode(500, ex);
             }
         }
-        else{
+        else
+        {
             return Ok("El usuario ya esta cargado!");
-        }        
+        }
     }
     /*
 
