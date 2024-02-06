@@ -22,10 +22,32 @@ ClassDiagram [frame=true framecolor=steelblue label="Class Diagram"] {
   private Amount : double
  	private Descripition : string
   private DateTime : DateTime
-  private Account : stringe
+  private Account : string
+  }
+  
+  abstract class ClientsLoan {
+  	private ID :string
+    private Amount:double
+    private Payment:string 
+    private ClientID:string 
+    private Client:Client 
+    private Loan:Loan     
+    private LoanID:string
+  }
+  
+  abstract class Loan {
+  	private Key : string
+    private Name : string
+    private MaxAmount : double
+    private Payment : string
+    private ClientsLoans : "ClientsLoan[]"
   }
   
   Client '1' -- '0..1' Account;
   Account '1' -- '0..1' Transaction;
+  Client '1' -- '0..1' ClientsLoan;
+  Loan '1' -- '0..1' ClientsLoan;
   
+  align {Account Transaction}
+  align {Loan ClientsLoan} 	 
 }
