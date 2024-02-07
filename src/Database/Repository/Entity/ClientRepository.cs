@@ -16,7 +16,11 @@ public class ClientRepository(HomeBankingContext context) : Repository<Client>(c
     .ThenInclude(client => client.Loan)
     .FirstOrDefault();
     
-    public IEnumerable<Client> GetAllUsers() => FindAll().Include(client => client.Accounts).ToArray();
+    public IEnumerable<Client> GetAllUsers() => FindAll()
+    .Include(client => client.Accounts)
+    .Include(client => client.Loans)
+    .ThenInclude(client => client.Loan)
+    .ToArray();
 
     public int Save(Client client)
     {
