@@ -11,9 +11,9 @@
 - [x] 1 - Initial configs.
 - [x] 2 - Account implementation. 
 - [x] 3 - Transactions implementation.
-- [ ] <b>4 - Cards implementation. (WIP) </b>
-- [ ] 5 - Loans implementation.
-- [ ] 6 - Client registration implementation.
+- [x] 4 - Loans implementation.
+- [x] 5 - Cards implementation. 
+- [ ] <b>6 - Client registration implementation. (WIP) </b>
 - [ ] 7 - Clients transactions implementation.
 - [ ] 8 - Client applying loans implementation.
 
