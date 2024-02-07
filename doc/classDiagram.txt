@@ -1,4 +1,24 @@
-ClassDiagram [frame=true framecolor=steelblue label="Class Diagram"] {
+ClassDiagram {
+  
+  abstract class Card {
+    ID : string
+  	CardHolder : string
+  	Type : CardType
+    Color : CardColor
+    CVV : int
+    FromDate : DateTime
+    ThruDate : DateTime
+    Client : string
+  }
+  
+ abstract class CardType {
+     DEBIT 
+     CREDIT
+  }
+  abstract class CardColor {
+     DEBIT 
+     CREDIT
+  }
  abstract class Client {
   private ID : string
   private FirstName : string
@@ -47,7 +67,12 @@ ClassDiagram [frame=true framecolor=steelblue label="Class Diagram"] {
   Account '1' -- '0..1' Transaction;
   Client '1' -- '0..1' ClientsLoan;
   Loan '1' -- '0..1' ClientsLoan;
+ 	Client '1' -- '0..1' Card;
   
-  align {Account Transaction}
-  align {Loan ClientsLoan} 	 
+  CardType -g-> Card;
+  CardColor -g-> Card;
+  
+  align {Client Account Transaction}
+  
+  align {Client Card}
 }

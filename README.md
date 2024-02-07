@@ -12,8 +12,8 @@
 - [x] 2 - Account implementation. 
 - [x] 3 - Transactions implementation.
 - [x] 4 - Loans implementation.
-- [ ] <b>5 - Cards implementation. (WIP)</b>
-- [ ] 6 - Client registration implementation.
+- [x] 5 - Cards implementation. 
+- [ ] <b>6 - Client registration implementation. (WIP) </b>
 - [ ] 7 - Clients transactions implementation.
 - [ ] 8 - Client applying loans implementation.
 

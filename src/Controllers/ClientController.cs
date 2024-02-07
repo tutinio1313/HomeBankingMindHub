@@ -41,10 +41,11 @@ public class ClientController(IClientRepository clientRepository) : ControllerBa
                         {
                             ID = account.Id,
                             Number = account.Number,
-                            CreationTime = account.CreationTime,
+                            CreationDate = account.CreationTime,
                             Balance = account.Balance
                         }).ToArray(),
 
+                        /*
                         Loans = client.Loans.Select(loan => new ClientsLoanDTO
                         {
                             ID = loan.ID,
@@ -52,8 +53,21 @@ public class ClientController(IClientRepository clientRepository) : ControllerBa
                             Name = loan.Loan.Name,
                             Amount = loan.Amount,
                             Payments = loan.Payment
+                        }).ToArray(),*/
+
+                        Cards = client.Cards.Select(card => new CardDTO
+                        {
+                            Id = card.Id,
+                            CardHolder = card.CardHolder,
+                            Type = card.Type,
+                            Color = card.Color,
+                            Number = card.Number,
+                            CVV = card.CVV,
+                            FromDate = card.FromDate,
+                            ThruDate = card.ThruDate
                         }).ToArray()
                     };
+
                     index++;
                 }
 
@@ -68,6 +82,7 @@ public class ClientController(IClientRepository clientRepository) : ControllerBa
 
         return Ok("No hay clientes cargados.");
     }
+
 
     [HttpGet("{id}")]
     public ActionResult<Client> Get(string id)
@@ -89,7 +104,7 @@ public class ClientController(IClientRepository clientRepository) : ControllerBa
                 {
                     ID = account.Id,
                     Number = account.Number,
-                    CreationTime = account.CreationTime,
+                    CreationDate = account.CreationTime,
                     Balance = account.Balance
                 }).ToArray(),
 
@@ -100,6 +115,18 @@ public class ClientController(IClientRepository clientRepository) : ControllerBa
                     Name = loan.Loan.Name,
                     Amount = loan.Amount,
                     Payments = loan.Payment
+                }).ToArray(),
+
+                Cards = client.Cards.Select(card => new CardDTO
+                {
+                    Id = card.Id,
+                    CardHolder = card.CardHolder,
+                    Type = card.Type,
+                    Color = card.Color,
+                    Number = card.Number,
+                    CVV = card.CVV,
+                    FromDate = card.FromDate,
+                    ThruDate = card.ThruDate
                 }).ToArray()
             });
         }

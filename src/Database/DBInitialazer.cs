@@ -43,6 +43,33 @@ public static class DBInitialazer
         new () {ID = "3", Amount = 100000, LoanID = "3", ClientID = "1", Payment = "24"}
     };
 
+    private static Card[] cards = {
+        new() {
+            Id = "1" ,
+            ClientID = users[3].Id,
+            client = users[3],
+            CardHolder = users[3].FirstName + " " + users[3].LastName,
+            Type = CardType.DEBIT.ToString(),
+            Color = CardColor.GOLD.ToString(),
+            Number = "3325-6745-7876-4445",
+            CVV = 990,
+            FromDate= DateTime.Now,
+            ThruDate= DateTime.Now.AddYears(4),
+        },
+        new() {
+            Id = "2",
+            ClientID = users[3].Id,
+            client = users[3],
+            CardHolder = users[3].FirstName + " " + users[3].LastName,
+            Type = CardType.CREDIT.ToString(),
+            Color = CardColor.TITANIUM.ToString(),
+            Number = "2234-6745-552-7888",
+            CVV = 750,
+            FromDate= DateTime.Now,
+            ThruDate= DateTime.Now.AddYears(5),
+        },
+    };
+
 #pragma warning disable
     private static HomeBankingContext context;
 #pragma warning restore
@@ -51,15 +78,17 @@ public static class DBInitialazer
         context = app.ApplicationServices.CreateScope().ServiceProvider.GetRequiredService<HomeBankingContext>();
     }
 
-    public static void PopulateDB(IApplicationBuilder app){
-            CreateContext(app);
+    public static void PopulateDB(IApplicationBuilder app)
+    {
+        CreateContext(app);
 
-            LoadUsers();
-            LoadAccounts();
+        LoadUsers();
+        LoadAccounts();
 
-            LoadLoans();
-            LoadClientLoans();
+        LoadLoans();
+        LoadClientLoans();
 
+        LoadCards();
     }
 
     private static void LoadUsers()
@@ -92,27 +121,39 @@ public static class DBInitialazer
         }
     }
 
-    public static void SetAccountBalance() {
-            foreach(Transaction transaction in context.Transactions.ToList()) {
-                transaction.Account.SetBalance(transaction.Amount);
-            }
-            context.SaveChanges();                
+    public static void SetAccountBalance()
+    {
+        foreach (Transaction transaction in context.Transactions.ToList())
+        {
+            transaction.Account.SetBalance(transaction.Amount);
+        }
+        context.SaveChanges();
     }
 
     private static void LoadLoans()
     {
-        if(!context.Loans.Any())
+        if (!context.Loans.Any())
         {
             context.Loans.AddRange(loans);
             context.SaveChanges();
         }
     }
-    private static void LoadClientLoans(){
-        if(!context.ClientLoans.Any())
+    private static void LoadClientLoans()
+    {
+        if (!context.ClientLoans.Any())
         {
             context.ClientLoans.AddRange(clientsLoans);
             context.SaveChanges();
         }
 
+    }
+
+    private static void LoadCards()
+    {
+        if (!context.Cards.Any())
+        {
+            context.Cards.AddRange(cards);
+            context.SaveChanges();
+        }
     }
 }

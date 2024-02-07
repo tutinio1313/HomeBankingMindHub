@@ -1,7 +1,4 @@
-
-using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HomeBankingMindHub.Model.Entity;
 
@@ -14,8 +11,7 @@ public class Client
     public required string Email { get; set; }
     public required string Password { get; set; }
 
-    // [NotMapped]
-
     public ICollection<Account>? Accounts { get; set; }
     public ICollection<ClientsLoan>? Loans { get; set; }
+    public ICollection<Card>? Cards { get; set; }
 }

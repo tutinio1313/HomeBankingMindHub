@@ -12,5 +12,6 @@ public class ClientDTO
     #pragma warning disable   
     public ICollection<AccountDTO> Accounts { get; set; }
     public ICollection<ClientsLoanDTO> Loans { get; set; }
+    public ICollection<CardDTO> Cards { get; set; }
     #pragma warning restore 
 }
