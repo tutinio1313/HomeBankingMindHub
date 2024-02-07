@@ -27,7 +27,7 @@ namespace HomeBankingMindHub.Controllers
                     accountDTOs[0] = new() {
                         ID = account.Id,
                         Number = account.Number,
-                        CreationTime = account.CreationTime,
+                        CreationDate = account.CreationTime,
                         Balance = account.Balance,
 
                         Transactions = account.Transactions.Select( transaction => new TransactionDTO {
@@ -55,7 +55,7 @@ namespace HomeBankingMindHub.Controllers
                 return Ok( new AccountDTO {
                     ID = account.Id,
                     Number = account.Number,
-                    CreationTime = account.CreationTime,
+                    CreationDate = account.CreationTime,
                     Balance = account.Balance,
 
                     Transactions = account.Transactions.Select( transaction => new TransactionDTO {
