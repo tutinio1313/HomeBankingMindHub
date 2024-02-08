@@ -5,15 +5,18 @@ using HomeBankingMindHub.Model.Entity;
 using HomeBankingMindHub.Model.Model.Client;
 using HomeBankingMindHub.Model.DTO;
 using System.Collections.Immutable;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using HomeBankingMindHub.Service.Interface;
 
 namespace HomeBankingMindHub.Controllers;
 
 [Route("api/[controller]")]
-[ApiController]
-public class ClientController(IClientRepository clientRepository) : ControllerBase
+[ApiController] 
+public class ClientController(IClientRepository clientRepository, IPasswordService passwordService) : ControllerBase
 {
 #pragma warning disable
     private readonly IClientRepository _clientRepository = clientRepository;
+    private readonly IPasswordService passwordService = passwordService;
 #pragma warning restore
 
     [HttpGet]
@@ -32,7 +35,7 @@ public class ClientController(IClientRepository clientRepository) : ControllerBa
                 {
                     clientDTOs[index] = new()
                     {
-                        ID = index,
+                        ID = index.ToString(),
                         FirstName = client.FirstName,
                         LastName = client.LastName,
                         Email = client.Email,
@@ -45,22 +48,22 @@ public class ClientController(IClientRepository clientRepository) : ControllerBa
                             Balance = account.Balance
                         }).ToArray(),
 
-                        /*
-                        Loans = client.Loans.Select(loan => new ClientsLoanDTO
+                        
+                        Credits = client.Loans.Select(loan => new ClientsLoanDTO
                         {
                             ID = loan.ID,
                             LoanID = loan.LoanID,
                             Name = loan.Loan.Name,
                             Amount = loan.Amount,
                             Payments = loan.Payment
-                        }).ToArray(),*/
+                        }).ToArray(),
 
                         Cards = client.Cards.Select(card => new CardDTO
                         {
                             Id = card.Id,
                             CardHolder = card.CardHolder,
-                            Type = card.Type,
-                            Color = card.Color,
+                            Type = card.Type.ToString(),
+                            Color = card.Color.ToString(),
                             Number = card.Number,
                             CVV = card.CVV,
                             FromDate = card.FromDate,
@@ -82,20 +85,21 @@ public class ClientController(IClientRepository clientRepository) : ControllerBa
 
         return Ok("No hay clientes cargados.");
     }
-
-
-    [HttpGet("{id}")]
-    public ActionResult<Client> Get(string id)
+    [HttpGet("current")]
+    public IActionResult GetCurrent()
     {
-        Client? client = _clientRepository.FindByID(id);
+        string? Email = User.FindFirst("Client")?.Value;
 
-        if (client is not null)
+        if (Email is not null)
         {
-            int index = 0;
-            return Ok(new ClientDTO
+            Client? client = _clientRepository.FindByEmail(Email);
+
+            if(client is not null) 
+            {
+                return Ok(new ClientDTO
             {
 
-                ID = index,
+                ID = client.Id,
                 FirstName = client.FirstName,
                 LastName = client.LastName,
                 Email = client.Email,
@@ -108,7 +112,7 @@ public class ClientController(IClientRepository clientRepository) : ControllerBa
                     Balance = account.Balance
                 }).ToArray(),
 
-                Loans = client.Loans.Select(loan => new ClientsLoanDTO
+                Credits = client.Loans.Select(loan => new ClientsLoanDTO
                 {
                     ID = loan.ID,
                     LoanID = loan.LoanID,
@@ -121,8 +125,66 @@ public class ClientController(IClientRepository clientRepository) : ControllerBa
                 {
                     Id = card.Id,
                     CardHolder = card.CardHolder,
-                    Type = card.Type,
-                    Color = card.Color,
+                    Type = card.Type.ToString(),
+                    Color = card.Color.ToString(),
+                    Number = card.Number,
+                    CVV = card.CVV,
+                    FromDate = card.FromDate,
+                    ThruDate = card.ThruDate
+                }).ToArray()
+            });
+            } 
+            else
+            {
+                return Forbid();
+            }
+        }
+
+        else
+        {
+            return Forbid();
+        }
+    }
+
+    [HttpGet("{id}")]
+    public ActionResult<Client> Get(string id)
+    {
+        Client? client = _clientRepository.FindByID(id);
+
+        if (client is not null)
+        {
+            int index = 0;
+            return Ok(new ClientDTO
+            {
+
+                ID = index.ToString(),
+                FirstName = client.FirstName,
+                LastName = client.LastName,
+                Email = client.Email,
+
+                Accounts = client.Accounts.Select(account => new AccountDTO
+                {
+                    ID = account.Id,
+                    Number = account.Number,
+                    CreationDate = account.CreationTime,
+                    Balance = account.Balance
+                }).ToArray(),
+
+                Credits = client.Loans.Select(loan => new ClientsLoanDTO
+                {
+                    ID = loan.ID,
+                    LoanID = loan.LoanID,
+                    Name = loan.Loan.Name,
+                    Amount = loan.Amount,
+                    Payments = loan.Payment
+                }).ToArray(),
+
+                Cards = client.Cards.Select(card => new CardDTO
+                {
+                    Id = card.Id,
+                    CardHolder = card.CardHolder,
+                    Type = card.Type.ToString(),
+                    Color = card.Color.ToString(),
                     Number = card.Number,
                     CVV = card.CVV,
                     FromDate = card.FromDate,
@@ -136,19 +198,19 @@ public class ClientController(IClientRepository clientRepository) : ControllerBa
     [HttpPost]
     public IActionResult Post([FromBody] PostModel model)
     {
-        bool userEmailExists = clientRepository.FindByEmail(model.Email) is not null;
+        bool userEmailExists = _clientRepository.FindByEmail(model.Email) is not null;
 
         if (!userEmailExists)
         {
             try
             {
-                int result = clientRepository.Save(new()
+                int result = _clientRepository.Save(new()
                 {
                     Id = Guid.NewGuid().ToString(),
                     FirstName = model.FirstName,
                     LastName = model.LastName,
                     Email = model.Email,
-                    Password = model.Password
+                    Password = passwordService.HashPassword(model.Password)
                 });
 
                 //The result means the entity amount changes on DB, that's the reason about the following condition.

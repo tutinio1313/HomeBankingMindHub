@@ -24,7 +24,7 @@ namespace HomeBankingMindHub.Controllers
                 int index = 0;
 
                 foreach(Account account in accounts) {
-                    accountDTOs[0] = new() {
+                    accountDTOs[index] = new() {
                         ID = account.Id,
                         Number = account.Number,
                         CreationDate = account.CreationTime,
@@ -32,14 +32,16 @@ namespace HomeBankingMindHub.Controllers
 
                         Transactions = account.Transactions.Select( transaction => new TransactionDTO {
                             ID = transaction.ID,
-                            Type = transaction.Type,
+                            Type = transaction.Type.ToString(),
                             Amount = transaction.Amount,
                             Description = transaction.Description,
                             Date = transaction.Date,
                             AccountId = transaction.AccountId
                         })
                     };
+                    index++;
                 }
+                return Ok(accountDTOs);
             }
             return Ok("No hay cuentas creadas.");
         }
@@ -60,7 +62,7 @@ namespace HomeBankingMindHub.Controllers
 
                     Transactions = account.Transactions.Select( transaction => new TransactionDTO {
                             ID = transaction.ID,
-                            Type = transaction.Type,
+                            Type = transaction.Type.ToString(),
                             Amount = transaction.Amount,
                             Description = transaction.Description,
                             Date = transaction.Date,
@@ -74,16 +76,6 @@ namespace HomeBankingMindHub.Controllers
 
         [HttpPost]
         public void Post([FromBody] string value)
-        {
-        }
-
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        [HttpDelete("{id}")]
-        public void Delete(int id)
         {
         }
     }

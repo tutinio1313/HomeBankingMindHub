@@ -1,6 +1,8 @@
 ﻿using System.Security.Cryptography;
+using System.Text;
 using HomeBankingMindHub.Database;
 using HomeBankingMindHub.Model.Entity;
+using HomeBankingMindHub.Service.Instance;
 using Microsoft.AspNetCore.Mvc.ActionConstraints;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -12,23 +14,23 @@ namespace HomeBankingMindHub.Database;
 
 public static class DBInitialazer
 {
-    private static readonly Client[] users = [
+    private static Client[] users = [
         new() { Id = Guid.NewGuid().ToString(), FirstName = "Andrés", LastName = "Rossini", Email = "andres@aol.com", Password = "tuti1313" },
         new() { Id = Guid.NewGuid().ToString(), FirstName = "Andrea", LastName = "Rossina", Email = "andrea@yahoo.com", Password = "yahoo123" },
         new() { Id = Guid.NewGuid().ToString(), FirstName = "Victoria", LastName = "Sanchez", Email = "SanVick@aola.com", Password = "asdasdasd" },
-        new () { Id = "1", FirstName = "Victor", LastName = "Coronado", Email = "VictorMasCapoCoronoado@gmail.com", Password = "vicCor123" }
+        new () { Id = "1", FirstName = "Victor", LastName = "Coronado", Email = "vcoronado@gmail.com", Password = "123456" }
     ];
 
     private static readonly Account[] accounts = [
         new(){ Id = Guid.NewGuid().ToString(), CreationTime = DateTime.Now, Number = "ACC-0", Client = users[0], ClientGuid = users[0].Id},
         new () {Id = "1", CreationTime = DateTime.Now, Number = "VIN001", Client = users[3], ClientGuid = users[3].Id},
-        new () {Id = Guid.NewGuid().ToString(), CreationTime = DateTime.Now, Number = "VIN002", Client = users[3], ClientGuid = users[3].Id, Balance = -3500}
+        new () {Id = Guid.NewGuid().ToString(), CreationTime = DateTime.Now, Number = "VIN002", Client = users[3], ClientGuid = users[3].Id}
     ];
 
     private static readonly Transaction[] transactions = [
-        new() { ID = "1", Type = TransactionType.CREDIT.ToString(), Date = DateTime.Now.AddHours(-2), Description = "Transferencia recibida", AccountId = "1", Account = accounts[1], Amount = 10000}
-        , new () {ID = "2", Type = TransactionType.DEBIT.ToString(), Date = DateTime.Now.AddHours(-3), Description = "Compra en tienda de Mercado Libre", AccountId = "1", Account = accounts[1], Amount = -2000}
-        , new() {ID = "3", Type = TransactionType.DEBIT.ToString(), Date = DateTime.Now.AddHours(-4), Description = "Compra en tienda", AccountId = "1", Account = accounts[1], Amount = -3000}
+        new() { ID = "1", Type = TransactionType.CREDIT, Date = DateTime.Now.AddHours(-2), Description = "Transferencia recibida", AccountId = "1", Account = accounts[1], Amount = 10000}
+        , new () {ID = "2", Type = TransactionType.DEBIT, Date = DateTime.Now.AddHours(-3), Description = "Compra en tienda de Mercado Libre", AccountId = "1", Account = accounts[1], Amount = -2000}
+        , new() {ID = "3", Type = TransactionType.DEBIT, Date = DateTime.Now.AddHours(-4), Description = "Compra en tienda", AccountId = "1", Account = accounts[1], Amount = -3000}
     ];
 
     private static readonly Loan[] loans = {
@@ -49,8 +51,8 @@ public static class DBInitialazer
             ClientID = users[3].Id,
             client = users[3],
             CardHolder = users[3].FirstName + " " + users[3].LastName,
-            Type = CardType.DEBIT.ToString(),
-            Color = CardColor.GOLD.ToString(),
+            Type = CardType.DEBIT,
+            Color = CardColor.GOLD,
             Number = "3325-6745-7876-4445",
             CVV = 990,
             FromDate= DateTime.Now,
@@ -61,8 +63,8 @@ public static class DBInitialazer
             ClientID = users[3].Id,
             client = users[3],
             CardHolder = users[3].FirstName + " " + users[3].LastName,
-            Type = CardType.CREDIT.ToString(),
-            Color = CardColor.TITANIUM.ToString(),
+            Type = CardType.CREDIT,
+            Color = CardColor.TITANIUM,
             Number = "2234-6745-552-7888",
             CVV = 750,
             FromDate= DateTime.Now,
@@ -95,9 +97,16 @@ public static class DBInitialazer
     {
         if (!context.Clients.Any())
         {
+            HashPassword();
             context.Clients.AddRange(users);
 
             context.SaveChanges();
+        }
+    }
+
+    private static void HashPassword(){
+        foreach(Client user in users) {
+            user.Password = Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(user.Password)));
         }
     }
 
