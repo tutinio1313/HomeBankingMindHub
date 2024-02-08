@@ -59,8 +59,8 @@ public class ClientController(IClientRepository clientRepository) : ControllerBa
                         {
                             Id = card.Id,
                             CardHolder = card.CardHolder,
-                            Type = card.Type,
-                            Color = card.Color,
+                            Type = card.Type.ToString(),
+                            Color = card.Color.ToString(),
                             Number = card.Number,
                             CVV = card.CVV,
                             FromDate = card.FromDate,
@@ -121,8 +121,8 @@ public class ClientController(IClientRepository clientRepository) : ControllerBa
                 {
                     Id = card.Id,
                     CardHolder = card.CardHolder,
-                    Type = card.Type,
-                    Color = card.Color,
+                    Type = card.Type.ToString(),
+                    Color = card.Color.ToString(),
                     Number = card.Number,
                     CVV = card.CVV,
                     FromDate = card.FromDate,

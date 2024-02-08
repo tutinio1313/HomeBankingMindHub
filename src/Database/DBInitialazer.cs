@@ -26,9 +26,9 @@ public static class DBInitialazer
     ];
 
     private static readonly Transaction[] transactions = [
-        new() { ID = "1", Type = TransactionType.CREDIT.ToString(), Date = DateTime.Now.AddHours(-2), Description = "Transferencia recibida", AccountId = "1", Account = accounts[1], Amount = 10000}
-        , new () {ID = "2", Type = TransactionType.DEBIT.ToString(), Date = DateTime.Now.AddHours(-3), Description = "Compra en tienda de Mercado Libre", AccountId = "1", Account = accounts[1], Amount = -2000}
-        , new() {ID = "3", Type = TransactionType.DEBIT.ToString(), Date = DateTime.Now.AddHours(-4), Description = "Compra en tienda", AccountId = "1", Account = accounts[1], Amount = -3000}
+        new() { ID = "1", Type = TransactionType.CREDIT, Date = DateTime.Now.AddHours(-2), Description = "Transferencia recibida", AccountId = "1", Account = accounts[1], Amount = 10000}
+        , new () {ID = "2", Type = TransactionType.DEBIT, Date = DateTime.Now.AddHours(-3), Description = "Compra en tienda de Mercado Libre", AccountId = "1", Account = accounts[1], Amount = -2000}
+        , new() {ID = "3", Type = TransactionType.DEBIT, Date = DateTime.Now.AddHours(-4), Description = "Compra en tienda", AccountId = "1", Account = accounts[1], Amount = -3000}
     ];
 
     private static readonly Loan[] loans = {
@@ -49,8 +49,8 @@ public static class DBInitialazer
             ClientID = users[3].Id,
             client = users[3],
             CardHolder = users[3].FirstName + " " + users[3].LastName,
-            Type = CardType.DEBIT.ToString(),
-            Color = CardColor.GOLD.ToString(),
+            Type = CardType.DEBIT,
+            Color = CardColor.GOLD,
             Number = "3325-6745-7876-4445",
             CVV = 990,
             FromDate= DateTime.Now,
@@ -61,8 +61,8 @@ public static class DBInitialazer
             ClientID = users[3].Id,
             client = users[3],
             CardHolder = users[3].FirstName + " " + users[3].LastName,
-            Type = CardType.CREDIT.ToString(),
-            Color = CardColor.TITANIUM.ToString(),
+            Type = CardType.CREDIT,
+            Color = CardColor.TITANIUM,
             Number = "2234-6745-552-7888",
             CVV = 750,
             FromDate= DateTime.Now,

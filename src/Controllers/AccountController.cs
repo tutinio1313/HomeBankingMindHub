@@ -32,7 +32,7 @@ namespace HomeBankingMindHub.Controllers
 
                         Transactions = account.Transactions.Select( transaction => new TransactionDTO {
                             ID = transaction.ID,
-                            Type = transaction.Type,
+                            Type = transaction.Type.ToString(),
                             Amount = transaction.Amount,
                             Description = transaction.Description,
                             Date = transaction.Date,
@@ -60,7 +60,7 @@ namespace HomeBankingMindHub.Controllers
 
                     Transactions = account.Transactions.Select( transaction => new TransactionDTO {
                             ID = transaction.ID,
-                            Type = transaction.Type,
+                            Type = transaction.Type.ToString(),
                             Amount = transaction.Amount,
                             Description = transaction.Description,
                             Date = transaction.Date,

@@ -5,7 +5,7 @@ namespace HomeBankingMindHub.Database.Repository;
 
 public class ClientRepository(HomeBankingContext context) : Repository<Client>(context), IClientRepository
 {
-    public Client? FindByID(string ID) => FindByCondition(client => client.Id == ID
+    public Client? FindByID(string ID) => FindByCondition(client => client.Id.ToUpper() == ID.ToUpper()
     ).Include(client => client.Accounts)
     .Include(client => client.Cards)
     .Include(client => client.Loans)
@@ -17,7 +17,7 @@ public class ClientRepository(HomeBankingContext context) : Repository<Client>(c
     .Include(client => client.Loans)
     .ThenInclude(client => client.Loan)
     .FirstOrDefault();
-    
+
     public IEnumerable<Client> GetAllUsers() => FindAll()
     .Include(client => client.Accounts)
     .Include(client => client.Cards)
