@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+/*using Microsoft.AspNetCore.Mvc;
 
 using HomeBankingMindHub.Database.Repository;
 using HomeBankingMindHub.Model.Entity;
@@ -39,4 +39,4 @@ namespace Namespace
         {
         }
     }
-}
+}*/

@@ -16,7 +16,7 @@ public static class DBInitialazer
         new() { Id = Guid.NewGuid().ToString(), FirstName = "Andrés", LastName = "Rossini", Email = "andres@aol.com", Password = "tuti1313" },
         new() { Id = Guid.NewGuid().ToString(), FirstName = "Andrea", LastName = "Rossina", Email = "andrea@yahoo.com", Password = "yahoo123" },
         new() { Id = Guid.NewGuid().ToString(), FirstName = "Victoria", LastName = "Sanchez", Email = "SanVick@aola.com", Password = "asdasdasd" },
-        new () { Id = "1", FirstName = "Victor", LastName = "Coronado", Email = "VictorMasCapoCoronoado@gmail.com", Password = "vicCor123" }
+        new () { Id = "1", FirstName = "Victor", LastName = "Coronado", Email = "vcoronado@gmail.com", Password = "123456" }
     ];
 
     private static readonly Account[] accounts = [

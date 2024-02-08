@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using HomeBankingMindHub.Database.Repository;
 using HomeBankingMindHub.Model.Entity;
+using HomeBankingMindHub.Model.Model.Auth;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
@@ -15,12 +16,12 @@ namespace HomeBankingMindHub.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class AuthController(ClientRepository clientRepository) : ControllerBase
+public class AuthController(IClientRepository clientRepository) : ControllerBase
 {
-    private readonly IClientRepository clientRepository = clientRepository;
+    private readonly IClientRepository clientRepository = clientRepository  ;
 
-    [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] Client model)
+    [HttpPost("Login")]
+    public async Task<IActionResult> Login([FromBody] LoginModel model)
     {
         try{
             Client? user = clientRepository.FindByEmail(model.Email);
@@ -49,24 +50,16 @@ public class AuthController(ClientRepository clientRepository) : ControllerBase
         }
     }
 
-    [HttpGet("{id}")]
-    public ActionResult<string> Get(int id)
+    [HttpPost("Logout")]
+    public async Task<IActionResult> Post()
     {
-        return "value";
-    }
+        try {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return Ok();
+        }
 
-    [HttpPost]
-    public void Post([FromBody] string value)
-    {
-    }
-
-    [HttpPut("{id}")]
-    public void Put(int id, [FromBody] string value)
-    {
-    }
-
-    [HttpDelete("{id}")]
-    public void Delete(int id)
-    {
+        catch (Exception ex) {
+            return StatusCode(500, ex);
+        }
     }
 }

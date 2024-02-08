@@ -11,7 +11,9 @@ public class PostModel
     [DataType(DataType.Text)]
     public string LastName { get; set; }
     [Required(ErrorMessage = "El email es requerido.")]
+    [RegularExpressionAttribute(@"^((?!\.)[\w\-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$", ErrorMessage = "El email ingresado no es valido.")]
     [DataType(DataType.EmailAddress)]
     public string Email { get; set; }
-    public string Password { get; set; } = "tuti1313";
+    [Required(ErrorMessage = "La contraseña es requerida.")]
+    public string Password { get; set; }
 }
