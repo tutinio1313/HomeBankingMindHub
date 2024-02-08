@@ -13,8 +13,8 @@
 - [x] 3 - Transactions implementation.
 - [x] 4 - Loans implementation.
 - [x] 5 - Cards implementation. 
-- [ ] <b>6 - Client registration implementation. (WIP) </b>
-- [ ] 7 - Clients transactions implementation.
+- [x] 6 - Client registration implementation. 
+- [ ] <b>7 - Clients transactions implementation. (WIP) </b>
 - [ ] 8 - Client applying loans implementation.
 
 <div>
