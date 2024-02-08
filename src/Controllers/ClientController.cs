@@ -6,15 +6,17 @@ using HomeBankingMindHub.Model.Model.Client;
 using HomeBankingMindHub.Model.DTO;
 using System.Collections.Immutable;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using HomeBankingMindHub.Service.Interface;
 
 namespace HomeBankingMindHub.Controllers;
 
 [Route("api/[controller]")]
 [ApiController] 
-public class ClientController(IClientRepository clientRepository) : ControllerBase
+public class ClientController(IClientRepository clientRepository, IPasswordService passwordService) : ControllerBase
 {
 #pragma warning disable
     private readonly IClientRepository _clientRepository = clientRepository;
+    private readonly IPasswordService passwordService = passwordService;
 #pragma warning restore
 
     [HttpGet]
@@ -196,19 +198,19 @@ public class ClientController(IClientRepository clientRepository) : ControllerBa
     [HttpPost]
     public IActionResult Post([FromBody] PostModel model)
     {
-        bool userEmailExists = clientRepository.FindByEmail(model.Email) is not null;
+        bool userEmailExists = _clientRepository.FindByEmail(model.Email) is not null;
 
         if (!userEmailExists)
         {
             try
             {
-                int result = clientRepository.Save(new()
+                int result = _clientRepository.Save(new()
                 {
                     Id = Guid.NewGuid().ToString(),
                     FirstName = model.FirstName,
                     LastName = model.LastName,
                     Email = model.Email,
-                    Password = model.Password
+                    Password = passwordService.HashPassword(model.Password)
                 });
 
                 //The result means the entity amount changes on DB, that's the reason about the following condition.

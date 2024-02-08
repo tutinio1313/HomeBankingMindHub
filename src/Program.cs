@@ -1,11 +1,13 @@
 using Microsoft.EntityFrameworkCore.SqlServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 using HomeBankingMindHub.Database;
 using HomeBankingMindHub.Database.Repository;
-using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using HomeBankingMindHub.Service.Instance;
+using HomeBankingMindHub.Service.Interface;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +23,8 @@ builder.Services.AddDbContext<HomeBankingContext>(options =>
 
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+builder.Services.AddScoped<IPasswordService, PasswordService>();
+
 builder.Services.AddControllers();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

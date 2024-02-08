@@ -11,12 +11,13 @@ using HomeBankingMindHub.Model.Model.Auth;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
+using HomeBankingMindHub.Service.Interface;
 
 namespace HomeBankingMindHub.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class AuthController(IClientRepository clientRepository) : ControllerBase
+public class AuthController(IClientRepository clientRepository, IPasswordService passwordService) : ControllerBase
 {
     private readonly IClientRepository clientRepository = clientRepository  ;
 
@@ -28,7 +29,7 @@ public class AuthController(IClientRepository clientRepository) : ControllerBase
 
             if (user is not null)
             {
-                if (model.Password.Equals(user.Password))
+                if (passwordService.AreEqual( password: model.Password, passwordHash: user.Password))
                 {
                     ClaimsIdentity claimsIdentity = new(claims: [new Claim("Client", user.Email)], authenticationType: CookieAuthenticationDefaults.AuthenticationScheme);
                     await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
