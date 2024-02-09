@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
+using NuGet.Versioning;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace HomeBankingMindHub.Database;
@@ -104,6 +105,8 @@ public static class DBInitialazer
         }
     }
 
+   
+
     private static void HashPassword(){
         foreach(Client user in users) {
             user.Password = Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(user.Password)));
@@ -125,7 +128,12 @@ public static class DBInitialazer
     {
         if (!context.Transactions.Any())
         {
+            foreach(Transaction transaction in transactions)
+            {
+                accounts.First(x => x.Id == transaction.AccountId).SetBalance(transaction.Amount);
+            }
             context.Transactions.AddRange(transactions);
+            context.Accounts.UpdateRange(accounts);
             context.SaveChanges();
         }
     }
