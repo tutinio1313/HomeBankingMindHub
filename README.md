@@ -18,6 +18,6 @@
 - [ ] 8 - Client applying loans implementation.
 
 <div>
-  <h2>DTO</h2>
+  <h2>Class Diagram</h2>
   <img src = "./doc/classDiagram.png"/>
 </div>
