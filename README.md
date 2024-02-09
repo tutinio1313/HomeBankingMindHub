@@ -14,8 +14,8 @@
 - [x] 4 - Loans implementation.
 - [x] 5 - Cards implementation. 
 - [x] 6 - Client registration implementation. 
-- [ ] <b>7 - Clients transactions implementation. (WIP) </b>
-- [ ] 8 - Client applying loans implementation.
+- [x] 7 - Clients transactions implementation. (WIP) 
+- [ ] <b>8 - Client applying loans implementation.</b>
 
 <div>
   <h2>Class Diagram</h2>
