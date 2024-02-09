@@ -24,6 +24,7 @@ builder.Services.AddDbContext<HomeBankingContext>(options =>
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
+builder.Services.AddScoped<ICardRepository, CardRepository>();
 
 builder.Services.AddControllers();
 

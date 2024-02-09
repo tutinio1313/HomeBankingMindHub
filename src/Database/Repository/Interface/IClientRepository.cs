@@ -7,4 +7,5 @@ public interface IClientRepository {
     Client? FindByID(string ID);
     Client? FindByEmail(string email);
     int Save(Client client);
+    void Put(Client client);
 }

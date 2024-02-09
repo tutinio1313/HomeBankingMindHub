@@ -2,8 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 
 using HomeBankingMindHub.Database.Repository;
 using HomeBankingMindHub.Model.Entity;
-using HomeBankingMindHub.Model.Model.Client;
 using HomeBankingMindHub.Model.DTO;
+using System.Security.Claims;
 
 namespace HomeBankingMindHub.Controllers
 {
@@ -74,9 +74,6 @@ namespace HomeBankingMindHub.Controllers
             return Ok("La cuenta no se ha encontrado.");
         }
 
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
+        
     }
 }

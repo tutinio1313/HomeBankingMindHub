@@ -7,9 +7,9 @@ public class AccountRepository(HomeBankingContext context) : Repository<Account>
 {
     public Account? FindByID(string ID) => FindByCondition(account => account.Id == ID)
                                           .Include( account => account.Transactions).FirstOrDefault();
-    
-    public IEnumerable<Account>? GetAllAccounts() => FindAll().Include(account => account.Transactions).ToArray();
-
+    public IEnumerable<Account>? GetAllAccounts() => [.. FindAll().Include(account => account.Transactions)];
+    public IEnumerable<Account>? GetAccountsByClient(string Email) => [.. FindByCondition(x => x.Client.Email == Email).Include(account => account.Transactions)];
+    public bool ExistsAccountByNumber(string Number) => FindByCondition(x => x.Number == Number).Any();
     public int Save(Account account)
     {
         Create(account);

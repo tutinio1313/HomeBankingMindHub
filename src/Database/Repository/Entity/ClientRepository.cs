@@ -30,4 +30,10 @@ public class ClientRepository(HomeBankingContext context) : Repository<Client>(c
         Create(client);
         return SaveChanges();
     }
+
+    public void Put(Client client) 
+    {
+        Update(client);
+        SaveChanges();
+    }
 }
