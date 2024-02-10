@@ -12,9 +12,12 @@ public class AccountRepository(HomeBankingContext context) : Repository<Account>
     public IEnumerable<Account>? GetAccountsByClient(string Email) => [.. FindByCondition(x => x.Client.Email == Email).Include(account => account.Transactions)];
 #pragma warning restore
     public bool ExistsAccountByNumber(string Number) => FindByCondition(x => x.Number == Number).Any();
+    public bool CanPostNewAccount(string Email) => FindByCondition(account => account.Client.Email == Email).Count() < 3;
+    
     public int Save(Account account)
     {
         Create(account);
         return SaveChanges();
     }
+
 }

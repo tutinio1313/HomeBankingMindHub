@@ -97,42 +97,51 @@ public class AccountService(IAccountRepository _accountRepository, IClientReposi
         {
             try
             {
-                bool canPost = _accountRepository.GetAccountsByClient(Id).Count() < 3;
                 Client? user = _clientRepository.FindByEmail(Id);
+                
 
-
-                if (canPost && user is not null)
+                if (user is not null)
                 {
-                    Random random = new();
-                    string AccountNumber = Utils.Utils.GenerateAccountNumber(random, ref _accountRepository);
-                    Account account = new()
+                    bool canPost = _accountRepository.CanPostNewAccount(Id);
+                    if (canPost)
                     {
-                        Id = Guid.NewGuid().ToString(),
-                        CreationTime = DateTime.Now,
-                        Balance = 0,
-                        Number = AccountNumber,
+                        Random random = new();
+                        string AccountNumber = Utils.Utils.GenerateAccountNumber(random, ref _accountRepository);
+                        Account account = new()
+                        {
+                            Id = Guid.NewGuid().ToString(),
+                            CreationTime = DateTime.Now,
+                            Balance = 0,
+                            Number = AccountNumber,
 
-                        ClientGuid = user.Id,
-                        Client = user,
-                    };
+                            ClientGuid = user.Id,
+                            Client = user,
+                        };
 
-                    _accountRepository.Save(account);
+                        _accountRepository.Save(account);
 
-                    StatusCode = 201;
-                    message = "La cuenta se ha creado satisfactoriamente.";
-                    return new AccountDTO()
+                        StatusCode = 201;
+                        message = "La cuenta se ha creado satisfactoriamente.";
+                        return new AccountDTO()
+                        {
+                            ID = account.Id,
+                            Number = account.Number,
+
+                            CreationDate = account.CreationTime,
+                            Balance = account.Balance
+                        };
+                    }
+
+                    else
                     {
-                        ID = account.Id,
-                        Number = account.Number,
-
-                        CreationDate = account.CreationTime,
-                        Balance = account.Balance
-                    };
+                        StatusCode = 403;
+                        message = "No se ha podido crear una cuenta bancaria, ya posee el maximo de cuentas.";
+                    }
                 }
                 else
                 {
                     StatusCode = 403;
-                    message = "No se ha podido crear una cuenta bancaria.";
+                    message = "No se ha encontrado su usuario.";
                 }
             }
             catch (Exception ex)
