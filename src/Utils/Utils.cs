@@ -17,16 +17,6 @@ public static class Utils
         return accountNumber;
     }
 
-    public static string GenerateCardNumber(Random random, ref ICardRepository _cardRepository)
-    {
-        string cardNumber = string.Empty;
-        do
-        {
-            cardNumber = random.Next(1000, 10000).ToString() + "-" + random.Next(1000, 10000).ToString() + "-" + random.Next(1000, 10000).ToString() + "-" + random.Next(1000, 10000).ToString();
-        } while (_cardRepository.ExistsCardByNumber(cardNumber));
-        return cardNumber;
-    }
-
     public static bool ValidateCardModel(PostCardModel model, out CardColor? cardColor, out CardType? cardType)
     {
 

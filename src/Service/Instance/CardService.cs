@@ -26,53 +26,64 @@ public class CardService(ICardRepository _cardRepository, IClientRepository _cli
                 {
                     if (Utils.Utils.ValidateCardModel(model, out CardColor? CardColor, out CardType? CardType))
                     {
-                        Card card = new Card
+                        if (_cardRepository.CanPostNewCard(client.Id, CardType))
                         {
-                            Id = Guid.NewGuid().ToString(),
-                            CardHolder = string.Concat(string.Concat(client.FirstName, " "), client.LastName),
-                            client = client,
-                            ClientID = client.Id,
+                            Card card = new Card
+                            {
+                                Id = Guid.NewGuid().ToString(),
+                                CardHolder = string.Concat(string.Concat(client.FirstName, " "), client.LastName),
+                                client = client,
+                                ClientID = client.Id,
 #pragma warning disable
-                            Color = (CardColor)CardColor,
-                            Type = (CardType)CardType,
+                                Color = (CardColor)CardColor,
+                                Type = (CardType)CardType,
 #pragma warning restore
-                            CVV = random.Next(1, 1000),
-                            Number = Utils.Utils.GenerateCardNumber(random, _cardRepository),
+                                CVV = random.Next(1, 1000),
+                                Number = Utils.Utils.GenerateCardNumber(random, _cardRepository),
 
-                            FromDate = DateTime.Now.AddMonths(-1),
-                            ThruDate = DateTime.Now.AddYears(2)
+                                FromDate = DateTime.Now.AddMonths(-1),
+                                ThruDate = DateTime.Now.AddYears(2)
 
-                        };
-                        #pragma warning disable
-                        client.Cards.Add(card);
-                        #pragma warning restore
-                        _clientRepository.Put(client);
+                            };
+#pragma warning disable
+                            client.Cards.Add(card);
+#pragma warning restore
+                            _clientRepository.Put(client);
 
-                        
-                        statusCode = 201;
-                        message = null;
-                        return(new CardDTO
+
+                            statusCode = 201;
+                            message = null;
+                            return new CardDTO
+                            {
+                                Id = card.Id,
+                                CardHolder = card.CardHolder,
+                                CVV = card.CVV,
+
+                                Type = card.Type.ToString(),
+                                Color = card.Color.ToString(),
+                                Number = card.Number,
+
+                                FromDate = card.FromDate,
+                                ThruDate = card.ThruDate
+                            };
+                        }
+                        else
                         {
-                            Id = card.Id,
-                            CardHolder = card.CardHolder,
-                            CVV = card.CVV,
-
-                            Type = card.Type.ToString(),
-                            Color = card.Color.ToString(),
-                            Number = card.Number,
-
-                            FromDate = card.FromDate,
-                            ThruDate = card.ThruDate
-                        });
+                            statusCode = 403;
+                            message = $"Usted ha alcanzado el maximo de 3 tarjetas de tipo {model.Type.ToLower() + "s"}.";
+                        }
                     }
-
-                    statusCode = 415;
-                    message = "Los datos ingresados son erroneos.";
+                    else
+                    {
+                        statusCode = 415;
+                        message = "Los datos ingresados son erroneos.";
+                    }
                 }
-
-                statusCode = 403;
-                message = "No se ha podido identificar tu usuario.";
-
+                else
+                {
+                    statusCode = 403;
+                    message = "No se ha podido identificar tu usuario.";
+                }
             }
             catch (Exception ex)
             {
