@@ -21,10 +21,17 @@ builder.Services.AddDbContext<HomeBankingContext>(options =>
     options.EnableSensitiveDataLogging();
 });
 
+
+
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
-builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<ICardRepository, CardRepository>();
+
+builder.Services.AddScoped<IPasswordService, PasswordService>();
+builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IClientService, ClientService>();
+builder.Services.AddScoped<ICardService, CardService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Services.AddControllers();
 
