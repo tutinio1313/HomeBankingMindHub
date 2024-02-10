@@ -12,43 +12,26 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 using HomeBankingMindHub.Service.Interface;
+using HomeBankingMindHub.Service.Instance;
 
 namespace HomeBankingMindHub.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class AuthController(IClientRepository clientRepository, IPasswordService passwordService) : ControllerBase
+public class AuthController(IAuthService authService) : ControllerBase
 {
-    private readonly IClientRepository clientRepository = clientRepository  ;
-
     [HttpPost("Login")]
     public async Task<IActionResult> Login([FromBody] LoginModel model)
     {
-        try{
-            Client? user = clientRepository.FindByEmail(model.Email);
+        ClaimsIdentity? result = authService.Login(model, out int statusCode, out string? message);
 
-            if (user is not null)
-            {
-                if (passwordService.AreEqual( password: model.Password, passwordHash: user.Password))
-                {
-                    ClaimsIdentity claimsIdentity = new(claims: [new Claim("Client", user.Email)], authenticationType: CookieAuthenticationDefaults.AuthenticationScheme);
-                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+        if(result is not null)
+        {
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(result));
+            return StatusCode(statusCode);
+        }
 
-                    return Ok();
-                }
-                else
-                {
-                    return BadRequest();
-                }
-            }
-            else
-            {
-                return Unauthorized();
-            }
-        }
-        catch (Exception ex){
-            return StatusCode(500,ex);
-        }
+        return StatusCode(statusCode, message);
     }
 
     [HttpPost("Logout")]

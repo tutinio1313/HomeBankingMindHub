@@ -1,250 +1,91 @@
 using Microsoft.AspNetCore.Mvc;
-
-using HomeBankingMindHub.Database.Repository;
 using HomeBankingMindHub.Model.Entity;
 using HomeBankingMindHub.Model.Model.Client;
 using HomeBankingMindHub.Model.DTO;
-using System.Collections.Immutable;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using HomeBankingMindHub.Service.Interface;
 
 namespace HomeBankingMindHub.Controllers;
 
 [Route("api/[controller]")]
-[ApiController] 
-public class ClientController(IClientRepository clientRepository, IPasswordService passwordService) : ControllerBase
+[ApiController]
+public class ClientController(IAccountService accountService, IClientService clientService, ICardService cardService) : ControllerBase
 {
 #pragma warning disable
-    private readonly IClientRepository _clientRepository = clientRepository;
-    private readonly IPasswordService passwordService = passwordService;
+
 #pragma warning restore
 
     [HttpGet]
-    public ActionResult<IEnumerable<Client>> Get()
+    public ActionResult<IEnumerable<ClientDTO>> Get()
     {
-        var clients = _clientRepository.GetAllUsers();
-
-        if (clients is not null)
+        IEnumerable<ClientDTO>? clients = clientService.GetAll(out int statusCode, out string? message);
+        
+        if(clients is not null)
         {
-            try
-            {
-                ClientDTO[] clientDTOs = new ClientDTO[clients.Count()];
-                int index = 0;
-
-                foreach (Client client in clients)
-                {
-                    clientDTOs[index] = new()
-                    {
-                        ID = index.ToString(),
-                        FirstName = client.FirstName,
-                        LastName = client.LastName,
-                        Email = client.Email,
-
-                        Accounts = client.Accounts.Select(account => new AccountDTO
-                        {
-                            ID = account.Id,
-                            Number = account.Number,
-                            CreationDate = account.CreationTime,
-                            Balance = account.Balance
-                        }).ToArray(),
-
-                        
-                        Credits = client.Loans.Select(loan => new ClientsLoanDTO
-                        {
-                            ID = loan.ID,
-                            LoanID = loan.LoanID,
-                            Name = loan.Loan.Name,
-                            Amount = loan.Amount,
-                            Payments = loan.Payment
-                        }).ToArray(),
-
-                        Cards = client.Cards.Select(card => new CardDTO
-                        {
-                            Id = card.Id,
-                            CardHolder = card.CardHolder,
-                            Type = card.Type.ToString(),
-                            Color = card.Color.ToString(),
-                            Number = card.Number,
-                            CVV = card.CVV,
-                            FromDate = card.FromDate,
-                            ThruDate = card.ThruDate
-                        }).ToArray()
-                    };
-
-                    index++;
-                }
-
-                return Ok(clientDTOs);
-            }
-
-            catch
-            {
-                return StatusCode(500, "Algo ha salido mal procesado tu pedido.");
-            }
+            return StatusCode(statusCode, message);
         }
-
-        return Ok("No hay clientes cargados.");
+        return StatusCode(statusCode, message);
     }
     [HttpGet("current")]
     public IActionResult GetCurrent()
     {
-        string? Email = User.FindFirst("Client")?.Value;
-
-        if (Email is not null)
+        ClientDTO? client = clientService.GetCurrent(User, out int statusCode, out string? message);
+        
+        if(client is not null)
         {
-            Client? client = _clientRepository.FindByEmail(Email);
-
-            if(client is not null) 
-            {
-                return Ok(new ClientDTO
-            {
-
-                ID = client.Id,
-                FirstName = client.FirstName,
-                LastName = client.LastName,
-                Email = client.Email,
-
-                Accounts = client.Accounts.Select(account => new AccountDTO
-                {
-                    ID = account.Id,
-                    Number = account.Number,
-                    CreationDate = account.CreationTime,
-                    Balance = account.Balance
-                }).ToArray(),
-
-                Credits = client.Loans.Select(loan => new ClientsLoanDTO
-                {
-                    ID = loan.ID,
-                    LoanID = loan.LoanID,
-                    Name = loan.Loan.Name,
-                    Amount = loan.Amount,
-                    Payments = loan.Payment
-                }).ToArray(),
-
-                Cards = client.Cards.Select(card => new CardDTO
-                {
-                    Id = card.Id,
-                    CardHolder = card.CardHolder,
-                    Type = card.Type.ToString(),
-                    Color = card.Color.ToString(),
-                    Number = card.Number,
-                    CVV = card.CVV,
-                    FromDate = card.FromDate,
-                    ThruDate = card.ThruDate
-                }).ToArray()
-            });
-            } 
-            else
-            {
-                return Forbid();
-            }
+            return StatusCode(statusCode, client);
         }
 
-        else
-        {
-            return Forbid();
-        }
-    }
+        return StatusCode(statusCode, message);
+    }   
 
     [HttpGet("{id}")]
     public ActionResult<Client> Get(string id)
     {
-        Client? client = _clientRepository.FindByID(id);
-
-        if (client is not null)
-        {
-            int index = 0;
-            return Ok(new ClientDTO
-            {
-
-                ID = index.ToString(),
-                FirstName = client.FirstName,
-                LastName = client.LastName,
-                Email = client.Email,
-
-                Accounts = client.Accounts.Select(account => new AccountDTO
-                {
-                    ID = account.Id,
-                    Number = account.Number,
-                    CreationDate = account.CreationTime,
-                    Balance = account.Balance
-                }).ToArray(),
-
-                Credits = client.Loans.Select(loan => new ClientsLoanDTO
-                {
-                    ID = loan.ID,
-                    LoanID = loan.LoanID,
-                    Name = loan.Loan.Name,
-                    Amount = loan.Amount,
-                    Payments = loan.Payment
-                }).ToArray(),
-
-                Cards = client.Cards.Select(card => new CardDTO
-                {
-                    Id = card.Id,
-                    CardHolder = card.CardHolder,
-                    Type = card.Type.ToString(),
-                    Color = card.Color.ToString(),
-                    Number = card.Number,
-                    CVV = card.CVV,
-                    FromDate = card.FromDate,
-                    ThruDate = card.ThruDate
-                }).ToArray()
-            });
+        ClientDTO? client = clientService.GetByID(id, out int statusCode, out string? message);
+        
+        if(client is not null) {
+            return StatusCode(statusCode, client);
         }
-        return Ok("No se ha encontrado el cliente.");
+        return StatusCode(statusCode, message);
     }
 
     [HttpPost]
     public IActionResult Post([FromBody] PostModel model)
     {
-        bool userEmailExists = _clientRepository.FindByEmail(model.Email) is not null;
+        ClientDTO? client = clientService.CreateUser(model, out int statusCode, out string? message);
 
-        if (!userEmailExists)
+        if(client is not null)
         {
-            try
-            {
-                int result = _clientRepository.Save(new()
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    FirstName = model.FirstName,
-                    LastName = model.LastName,
-                    Email = model.Email,
-                    Password = passwordService.HashPassword(model.Password)
-                });
-
-                //The result means the entity amount changes on DB, that's the reason about the following condition.
-
-                if (result >= 1)
-                {
-                    return Created();
-
-                }
-                else
-                {
-                    return Ok("Algo ha salido mal creando el usuario.");
-                }
-
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex);
-            }
+            return StatusCode(statusCode, client);
         }
-        else
-        {
-            return Ok("El usuario ya esta cargado!");
-        }
+
+        return StatusCode(statusCode, message);
     }
-    /*
-
-    [HttpPut("{id}")]
-    public void Put(int id, [FromBody] string value)
+    [HttpPost("current/accounts")]
+    public ActionResult PostAccount()
     {
+        AccountDTO? response = accountService.PostAccount(User
+        ,out int statusCode
+        , out string? message);
+
+        if(statusCode == 201){
+            return StatusCode(201, response);
+        }
+
+        return StatusCode(statusCode, message);
     }
 
-    [HttpDelete("{id}")]
-    public void Delete(int id)
+    [HttpPost("current/cards")]
+
+    public ActionResult PostCard(PostCardModel model)
     {
-    }*/
+        CardDTO? card = cardService.PostCard(model: model, claims: User, out int statusCode, out string? message);
+
+        if(card is not null)
+        {
+            return StatusCode(statusCode, card);
+        }
+
+        return StatusCode(statusCode, message);
+    }
 }

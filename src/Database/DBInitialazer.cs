@@ -41,9 +41,9 @@ public static class DBInitialazer
     };
 
     private static ClientsLoan[] clientsLoans = {
-        new() {ID = "1", Amount = 400000, LoanID = "1", ClientID = "1", Payment = "60" },
-        new() {ID = "2", Amount = 50000, LoanID = "2", ClientID = "1", Payment = "12" },
-        new () {ID = "3", Amount = 100000, LoanID = "3", ClientID = "1", Payment = "24"}
+        new() {ID = "1", Amount = 400000, LoanID = "1", ClientID = "1", Client = users[3] , Loan = loans[0], Payment = "60" },
+        new() {ID = "2", Amount = 50000, LoanID = "2", ClientID = "1", Client = users[3], Loan = loans[1],  Payment = "12" },
+        new () {ID = "3", Amount = 100000, LoanID = "3", ClientID = "1", Client = users[3], Loan = loans[2], Payment = "24"}
     };
 
     private static Card[] cards = {
