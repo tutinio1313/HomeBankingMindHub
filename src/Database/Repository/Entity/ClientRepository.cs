@@ -29,8 +29,15 @@ public class ClientRepository(HomeBankingContext context) : Repository<Client>(c
 
     public int Save(Client client)
     {
+        if(FindByID(client.Id) is not null)
+        {
+            do {
+                client.Id = Guid.NewGuid().ToString();                
+            }while(FindByID(client.Id) is not null);
+        }
+        
         Create(client);
-        return SaveChanges();
+        return SaveChanges();        
     }
 
     public void Put(Client client) 

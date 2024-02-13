@@ -23,9 +23,9 @@ public static class DBInitialazer
     ];
 
     private static readonly Account[] accounts = [
-        new(){ Id = Guid.NewGuid().ToString(), CreationTime = DateTime.Now, Number = "ACC-0", Client = users[0], ClientGuid = users[0].Id},
-        new () {Id = "1", CreationTime = DateTime.Now, Number = "VIN001", Client = users[3], ClientGuid = users[3].Id},
-        new () {Id = Guid.NewGuid().ToString(), CreationTime = DateTime.Now, Number = "VIN002", Client = users[3], ClientGuid = users[3].Id}
+        new () {Id = "1", CreationTime = DateTime.Now, Number = "VIN-00000001", Client = users[3], ClientGuid = users[3].Id},
+        new () {Id = Guid.NewGuid().ToString(), CreationTime = DateTime.Now, Number = "VIN-00000002", Client = users[3], ClientGuid = users[3].Id, Balance = 13500},
+        new(){ Id = Guid.NewGuid().ToString(), CreationTime = DateTime.Now, Number = "VIN-00000003", Client = users[0], ClientGuid = users[0].Id}
     ];
 
     private static readonly Transaction[] transactions = [

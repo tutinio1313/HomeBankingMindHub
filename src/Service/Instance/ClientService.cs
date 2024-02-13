@@ -14,7 +14,7 @@ using System.Security.Claims;
 
 namespace HomeBankingMindHub.Service.Instance;
 
-public class ClientService(IClientRepository _clientRepository, IPasswordService passwordService, IAccountRepository _accountRepository) : IClientService
+public class ClientService(IClientRepository _clientRepository, IAccountRepository _accountRepository) : IClientService
 {
     public ClientDTO? CreateUser(PostModel model, out int StatusCode, out string? message)
     {
@@ -30,7 +30,7 @@ public class ClientService(IClientRepository _clientRepository, IPasswordService
                     FirstName = model.FirstName,
                     LastName = model.LastName,
                     Email = model.Email,
-                    Password = passwordService.HashPassword(model.Password)
+                    Password = HomeBankingMindHub.Utils.Utils.HashPassword(model.Password)
                 };
 
                 int result = _clientRepository.Save(user);

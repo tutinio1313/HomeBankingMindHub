@@ -48,7 +48,17 @@ public class ClientController(IAccountService accountService, IClientService cli
         }
         return StatusCode(statusCode, message);
     }
+    [HttpGet("current/account")]
+    public IActionResult GetCurrentAccounts()
+    {
+        IEnumerable<AccountDTO>? accountsDTOs = accountService.GetAllAcountsByEmail(User, out int statusCode, out string? message);
+        if(accountsDTOs is not null)
+        {
+            return StatusCode(statusCode, accountsDTOs);
+        }
 
+        return StatusCode(statusCode, message);
+    }
     [HttpPost]
     public IActionResult Post([FromBody] PostModel model)
     {
@@ -76,7 +86,6 @@ public class ClientController(IAccountService accountService, IClientService cli
     }
 
     [HttpPost("current/cards")]
-
     public ActionResult PostCard(PostCardModel model)
     {
         CardDTO? card = cardService.PostCard(model: model, claims: User, out int statusCode, out string? message);
