@@ -12,6 +12,15 @@ public static class Utils
         string accountNumber;
         do
         {
+            string number = random.Next(1, 100000000).ToString();
+
+            if(number.Length < 8)
+            {
+                do {
+                    number = string.Concat("0", number);
+                }while(number.Length is not 8);
+            }
+
             accountNumber = "VIN-" + random.Next(1, 100000000).ToString();
         } while (_accountRepository.ExistsAccountByNumber(accountNumber));
         return accountNumber;
@@ -35,7 +44,7 @@ public static class Utils
         } while (_cardRepository.ExistsCardByNumber(cardNumber));
         return cardNumber;
     }
-           
+
     public static string HashPassword(string password) => Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(password)));
 
     public static bool AreEqual(string password, string passwordHash) => HashPassword(password).Equals(passwordHash);

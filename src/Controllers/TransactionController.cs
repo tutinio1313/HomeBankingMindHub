@@ -1,42 +1,29 @@
-/*using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 
 using HomeBankingMindHub.Database.Repository;
 using HomeBankingMindHub.Model.Entity;
-//using HomeBankingMindHub.Model.Model.Client;
+using HomeBankingMindHub.Model.Model.Transaction;
 //using HomeBankingMindHub.Model.DTO;
 using System.Collections.Immutable;
+using HomeBankingMindHub.Service.Interface;
+using HomeBankingMindHub.Model.DTO;
 
-namespace Namespace
+namespace HomeBankingMindHub.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+public class TransactionController(ITransactionService transactionService) : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class TransactionController : ControllerBase
+    [HttpPost]
+    public ActionResult Post([FromBody] PostTransactionModel model)
     {
-        [HttpGet]
-        public ActionResult<IEnumerable<string>> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
+        IEnumerable<TransactionDTO>? transactionsDTOs = transactionService.Post(claims : User,model : model,statusCode :out int statusCode,message : out string? message);
 
-        [HttpGet("{id}")]
-        public ActionResult<string> Get(int id)
-        {
-            return "value";
-        }
+            if(transactionsDTOs is not null)
+            {
+                return StatusCode(statusCode, transactionsDTOs);
+            }
 
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
-
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
+            return StatusCode(statusCode, message);        
     }
-}*/
+}

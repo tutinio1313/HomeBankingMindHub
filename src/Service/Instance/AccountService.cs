@@ -24,6 +24,7 @@ public class AccountService(IAccountRepository _accountRepository, IClientReposi
 
             foreach (Account account in accounts)
             {
+                int TransactionIndex = 1;
                 accountDTOs[index] = new()
                 {
                     ID = account.Id,
@@ -35,7 +36,7 @@ public class AccountService(IAccountRepository _accountRepository, IClientReposi
 #pragma warning disable
                     Transactions = account.Transactions.Select(transaction => new TransactionDTO
                     {
-                        ID = transaction.ID,
+                        ID = TransactionIndex++.ToString(),
                         Type = transaction.Type.ToString(),
                         Amount = transaction.Amount,
                         Description = transaction.Description,
@@ -56,6 +57,57 @@ public class AccountService(IAccountRepository _accountRepository, IClientReposi
         return null;
     }
 
+    public IEnumerable<AccountDTO>? GetAllAcountsByEmail(ClaimsPrincipal claims, out int StatusCode, out string? message)
+    {
+        string? UserEmail = claims.FindFirst("Client")?.Value;
+
+        if (UserEmail is not null)
+        {
+            message = null;
+            StatusCode = 200;
+            Account[]? accounts = _accountRepository.GetAccountsByClient(UserEmail).ToArray();
+            AccountDTO[] accountDTOs = new AccountDTO[accounts.Count()];
+            int index = 0;
+            
+
+            foreach (Account account in accounts)
+            {
+                int TransactionIndex = 1;
+                accountDTOs[index] = new()
+                {
+                ID = account.Id,
+                    Number = account.Number,
+                    CreationDate = account.CreationTime,
+                    Balance = account.Balance,
+
+
+#pragma warning disable
+                    Transactions = account.Transactions.Select(transaction => new TransactionDTO
+                    {
+                        ID = TransactionIndex++.ToString(),
+                        Type = transaction.Type.ToString(),
+                        Amount = transaction.Amount,
+                        Description = transaction.Description,
+                        Date = transaction.Date,
+                        AccountId = transaction.AccountId
+                    })
+#pragma warning restore
+                };
+                index++;
+            }
+
+
+            return accountDTOs;
+        }
+        else
+        {
+            message = "El usuario no se ha encontrado.";
+            StatusCode = 401;
+        }
+
+        return null;
+    }
+
     public AccountDTO? GetByID(string id, out int StatusCode, out string? message)
     {
         Account? account = _accountRepository.FindByID(id);
@@ -64,6 +116,7 @@ public class AccountService(IAccountRepository _accountRepository, IClientReposi
         {
             message = null;
             StatusCode = 200;
+            int transactionIndex = 1;
             return new AccountDTO
             {
                 ID = account.Id,
@@ -73,7 +126,7 @@ public class AccountService(IAccountRepository _accountRepository, IClientReposi
 #pragma warning disable
                 Transactions = account.Transactions.Select(transaction => new TransactionDTO
                 {
-                    ID = transaction.ID,
+                    ID = transactionIndex++.ToString(),
                     Type = transaction.Type.ToString(),
                     Amount = transaction.Amount,
                     Description = transaction.Description,
@@ -98,7 +151,7 @@ public class AccountService(IAccountRepository _accountRepository, IClientReposi
             try
             {
                 Client? user = _clientRepository.FindByEmail(Id);
-                
+
 
                 if (user is not null)
                 {
