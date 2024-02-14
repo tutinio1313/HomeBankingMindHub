@@ -149,7 +149,7 @@ public class ClientService(IClientRepository _clientRepository, IAccountReposito
         }
         else
         {
-            StatusCode = 400;
+            StatusCode = 200;
             message = "No hay clientes cargados.";
         }
 

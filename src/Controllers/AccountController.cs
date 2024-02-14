@@ -21,7 +21,7 @@ namespace HomeBankingMindHub.Controllers
                  out string? message);
             
             if(accounts is not null){
-                return Ok(accounts);
+                return StatusCode(statusCode, accounts);
             }
 
             return StatusCode(statusCode, message);
@@ -36,7 +36,7 @@ namespace HomeBankingMindHub.Controllers
              out string? message);
 
             if(account is not null) {
-                return Ok(account);
+                return StatusCode(statusCode, account);
             }
 
             return StatusCode(statusCode, message);
