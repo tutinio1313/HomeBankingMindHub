@@ -8,19 +8,23 @@ public class PostTransactionModel
     [Required(ErrorMessage = "El número de cuenta emisor es requerido.")]
     [DataType(DataType.Text)]
     [Length(
-    minimumLength: 12, 
-    maximumLength: 12
+    minimumLength: 12
+    ,maximumLength: 12
     ,ErrorMessage = "La cuenta emisor no es correcto.")
     ]
+    [RegularExpression(@"[V|v][I|i][n|N]-\d\d\d\d\d\d\d\d"
+    , ErrorMessage = "El número de cuenta emisor no tiene el formato correcto.")]
     public string FromAccountNumber { get; set; }
     
     [Required(ErrorMessage = "El número de cuenta receptor es requerido.")]
     [DataType(DataType.Text)]
     [Length(
-    minimumLength: 12, 
-    maximumLength: 12
-    ,ErrorMessage = "La cuenta emisor no es correcto.")
+    minimumLength: 12
+    ,maximumLength: 12
+    ,ErrorMessage = "La cuenta receptor no es correcto.")
     ]
+    [RegularExpression(@"[V|v][I|i][n|N]-\d\d\d\d\d\d\d\d"
+    , ErrorMessage = "El número de cuenta receptor no tiene el formato correcto.")]
     public string ToAccountNumber { get; set; }
     
     [Required(ErrorMessage = "El importe es requerido.")]

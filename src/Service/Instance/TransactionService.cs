@@ -22,8 +22,8 @@ public class TransactionService(ITransactionRepository transactionRepository
                 string? UserEmail = claims.FindFirst("Client")?.Value;
                 if (UserEmail is not null)
                 {
-                    Account? fromAccount = accountRepository.GetAccountByNumber(Number: model.FromAccountNumber);
-                    Account? toAccount = accountRepository.GetAccountByNumber(Number: model.ToAccountNumber);
+                    Account? fromAccount = accountRepository.GetAccountByNumber(Number: model.FromAccountNumber.ToUpper());
+                    Account? toAccount = accountRepository.GetAccountByNumber(Number: model.ToAccountNumber.ToUpper());
 
                     if (fromAccount is not null && toAccount is not null)
                     {
