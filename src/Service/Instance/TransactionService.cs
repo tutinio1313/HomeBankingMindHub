@@ -27,7 +27,7 @@ public class TransactionService(ITransactionRepository transactionRepository
 
                     if (fromAccount is not null && toAccount is not null)
                     {
-                        if (clientRepository.FindByID(fromAccount.ClientGuid).Email.Equals(UserEmail))
+                        if (clientRepository.FindByID(fromAccount.ClientId).Email.Equals(UserEmail))
                         {
                             if (fromAccount.Balance - model.Amount >= 0)
                             {

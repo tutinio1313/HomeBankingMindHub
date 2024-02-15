@@ -41,7 +41,7 @@ public class ClientService(IClientRepository _clientRepository, IAccountReposito
                     CreationTime = DateTime.Now,
 
                     Client = user,
-                    ClientGuid = user.Id,
+                    ClientId = user.Id,
 
                     Number = Utils.Utils.GenerateAccountNumber(random: new(), _accountRepository: ref _accountRepository)
                 });
@@ -113,7 +113,6 @@ public class ClientService(IClientRepository _clientRepository, IAccountReposito
                         Credits = client.Loans.Select(loan => new ClientsLoanDTO
                         {
                             ID = loan.ID,
-                            LoanID = loan.LoanID,
                             Name = loan.Loan.Name,
                             Amount = loan.Amount,
                             Payments = loan.Payment
@@ -186,7 +185,6 @@ public class ClientService(IClientRepository _clientRepository, IAccountReposito
                 Credits = client.Loans.Select(loan => new ClientsLoanDTO
                 {
                     ID = loan.ID,
-                    LoanID = loan.LoanID,
                     Name = loan.Loan.Name,
                     Amount = loan.Amount,
                     Payments = loan.Payment
@@ -244,7 +242,6 @@ public class ClientService(IClientRepository _clientRepository, IAccountReposito
                         Credits = client.Loans.Select(loan => new ClientsLoanDTO
                         {
                             ID = loan.ID,
-                            LoanID = loan.LoanID,
                             Name = loan.Loan.Name,
                             Amount = loan.Amount,
                             Payments = loan.Payment

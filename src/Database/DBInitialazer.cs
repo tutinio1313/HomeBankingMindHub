@@ -23,15 +23,15 @@ public static class DBInitialazer
     ];
 
     private static readonly Account[] accounts = [
-        new () {Id = "1", CreationTime = DateTime.Now, Number = "VIN-00000001", Client = users[3], ClientGuid = users[3].Id},
-        new () {Id = Guid.NewGuid().ToString(), CreationTime = DateTime.Now, Number = "VIN-00000002", Client = users[3], ClientGuid = users[3].Id, Balance = 13500},
-        new(){ Id = Guid.NewGuid().ToString(), CreationTime = DateTime.Now, Number = "VIN-00000003", Client = users[0], ClientGuid = users[0].Id}
+        new () {Id = "1", CreationTime = DateTime.Now, Number = "VIN-00000001", Client = users[3], ClientId = users[3].Id},
+        new () {Id = Guid.NewGuid().ToString(), CreationTime = DateTime.Now, Number = "VIN-00000002", Client = users[3], ClientId = users[3].Id, Balance = 13500},
+        new(){ Id = Guid.NewGuid().ToString(), CreationTime = DateTime.Now, Number = "VIN-00000003", Client = users[0], ClientId = users[0].Id}
     ];
 
     private static readonly Transaction[] transactions = [
-        new() { ID = "1", Type = TransactionType.CREDIT, Date = DateTime.Now.AddHours(-2), Description = "Transferencia recibida", AccountId = "1", Account = accounts[1], Amount = 10000}
-        , new () {ID = "2", Type = TransactionType.DEBIT, Date = DateTime.Now.AddHours(-3), Description = "Compra en tienda de Mercado Libre", AccountId = "1", Account = accounts[1], Amount = -2000}
-        , new() {ID = "3", Type = TransactionType.DEBIT, Date = DateTime.Now.AddHours(-4), Description = "Compra en tienda", AccountId = "1", Account = accounts[1], Amount = -3000}
+        new() { ID = "1", Type = TransactionType.CREDIT, Date = DateTime.Now.AddHours(-2), Description = "Transferencia recibida", AccountId = "1", Account = accounts[0], Amount = 10000}
+        , new () {ID = "2", Type = TransactionType.DEBIT, Date = DateTime.Now.AddHours(-3), Description = "Compra en tienda de Mercado Libre", AccountId = "1", Account = accounts[0], Amount = -2000}
+        , new() {ID = "3", Type = TransactionType.DEBIT, Date = DateTime.Now.AddHours(-4), Description = "Compra en tienda", AccountId = "1", Account = accounts[0], Amount = -3000}
     ];
 
     private static readonly Loan[] loans = {

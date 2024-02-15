@@ -30,7 +30,7 @@ public class AccountRepository(HomeBankingContext context) : Repository<Account>
         {
             do
             {
-                account.Id = Guid.NewGuid().ToString();
+              account.Id = Guid.NewGuid().ToString();
             } while (FindByID(account.Id) is not null);
         }
 
