@@ -24,7 +24,7 @@ namespace HomeBankingMindHub.Controllers
                 int index = 0;
 
                 foreach(Account account in accounts) {
-                    accountDTOs[0] = new() {
+                    accountDTOs[index] = new() {
                         ID = account.Id,
                         Number = account.Number,
                         CreationDate = account.CreationTime,
@@ -39,6 +39,7 @@ namespace HomeBankingMindHub.Controllers
                             AccountId = transaction.AccountId
                         })
                     };
+                    index++;
                 }
             }
             return Ok("No hay cuentas creadas.");
