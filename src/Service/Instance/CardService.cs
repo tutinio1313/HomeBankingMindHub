@@ -26,7 +26,7 @@ public class CardService(ICardRepository _cardRepository, IClientRepository _cli
                 {
                     if (Utils.Utils.ValidateCardModel(model, out CardColor? CardColor, out CardType? CardType))
                     {
-                        if (_cardRepository.CanPostNewCard(client.Id, CardType))
+                        if (_cardRepository.CanPostNewCard(client.Id, CardType, CardColor))
                         {
                             Card card = new Card
                             {
@@ -45,10 +45,7 @@ public class CardService(ICardRepository _cardRepository, IClientRepository _cli
                                 ThruDate = DateTime.Now.AddYears(2)
 
                             };
-#pragma warning disable
-                            client.Cards.Add(card);
-#pragma warning restore
-                            _clientRepository.Put(client);
+                            _cardRepository.Save(card);
 
 
                             statusCode = 201;
@@ -70,7 +67,7 @@ public class CardService(ICardRepository _cardRepository, IClientRepository _cli
                         else
                         {
                             statusCode = 403;
-                            message = $"Usted ha alcanzado el maximo de 3 tarjetas de tipo {model.Type.ToLower() + "s"}.";
+                            message = $"Usted ha alcanzado el maximo de tarjetas de tipo {model.Type.ToLower() + "s"}.";
                         }
                     }
                     else

@@ -167,7 +167,7 @@ public class AccountService(IAccountRepository _accountRepository, IClientReposi
                             Balance = 0,
                             Number = AccountNumber,
 
-                            ClientGuid = user.Id,
+                            ClientId = user.Id,
                             Client = user,
                         };
 

@@ -12,7 +12,7 @@ public class Account
     public required string Number {get;set;}
     public double Balance {get; set;} = 0.00;
     [ForeignKey("Client")]
-    public required string ClientGuid {get;set;}
+    public required string ClientId {get;set;}
     public required Client Client {get; set;}
     public IEnumerable<Transaction>? Transactions {get;set;}
 
