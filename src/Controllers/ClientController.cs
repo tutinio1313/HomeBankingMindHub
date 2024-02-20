@@ -3,6 +3,8 @@ using HomeBankingMindHub.Model.Entity;
 using HomeBankingMindHub.Model.Model.Client;
 using HomeBankingMindHub.Model.DTO;
 using HomeBankingMindHub.Service.Interface;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 
 namespace HomeBankingMindHub.Controllers;
 
@@ -18,8 +20,8 @@ public class ClientController(IAccountService accountService, IClientService cli
     public ActionResult<IEnumerable<ClientDTO>> Get()
     {
         IEnumerable<ClientDTO>? clients = clientService.GetAll(out int statusCode, out string? message);
-        
-        if(clients is not null)
+
+        if (clients is not null)
         {
             return StatusCode(statusCode, message);
         }
@@ -29,21 +31,22 @@ public class ClientController(IAccountService accountService, IClientService cli
     public IActionResult GetCurrent()
     {
         ClientDTO? client = clientService.GetCurrent(User, out int statusCode, out string? message);
-        
-        if(client is not null)
+
+        if (client is not null)
         {
             return StatusCode(statusCode, client);
         }
 
         return StatusCode(statusCode, message);
-    }   
+    }
 
     [HttpGet("{id}")]
     public ActionResult<Client> Get(string id)
     {
         ClientDTO? client = clientService.GetByID(id, out int statusCode, out string? message);
-        
-        if(client is not null) {
+
+        if (client is not null)
+        {
             return StatusCode(statusCode, client);
         }
         return StatusCode(statusCode, message);
@@ -52,7 +55,7 @@ public class ClientController(IAccountService accountService, IClientService cli
     public IActionResult GetCurrentAccounts()
     {
         IEnumerable<AccountDTO>? accountsDTOs = accountService.GetAllAcountsByEmail(User, out int statusCode, out string? message);
-        if(accountsDTOs is not null)
+        if (accountsDTOs is not null)
         {
             return StatusCode(statusCode, accountsDTOs);
         }
@@ -64,7 +67,7 @@ public class ClientController(IAccountService accountService, IClientService cli
     {
         ClientDTO? client = clientService.CreateUser(model, out int statusCode, out string? message);
 
-        if(client is not null)
+        if (client is not null)
         {
             return StatusCode(statusCode, client);
         }
@@ -75,10 +78,11 @@ public class ClientController(IAccountService accountService, IClientService cli
     public ActionResult PostAccount()
     {
         AccountDTO? response = accountService.PostAccount(User
-        ,out int statusCode
+        , out int statusCode
         , out string? message);
 
-        if(statusCode == 201){
+        if (statusCode == 201)
+        {
             return StatusCode(201, response);
         }
 
@@ -88,13 +92,38 @@ public class ClientController(IAccountService accountService, IClientService cli
     [HttpPost("current/cards")]
     public ActionResult PostCard(PostCardModel model)
     {
-        CardDTO? card = cardService.PostCard(model: model, claims: User, out int statusCode, out string? message);
+        string? UserEmail = User.FindFirstValue("Client");
 
-        if(card is not null)
+        if (!UserEmail.IsNullOrEmpty())
         {
-            return StatusCode(statusCode, card);
+            CardDTO? card = cardService.PostCard(model: model, Email:  UserEmail, out int statusCode, out string? message);
+
+            if (card is not null)
+            {
+                return StatusCode(statusCode, card);
+            }
+            return StatusCode(statusCode, message);
+        }
+        return StatusCode(401, "Usted no tiene los permisos necesarios.");
+    }
+
+    [HttpGet("current/cards")]
+    public ActionResult GetCards()
+    {
+
+        string? UserEmail = User.FindFirstValue("Client");
+
+        if (!UserEmail.IsNullOrEmpty())
+        {
+            CardDTO[]? cardDTOs = cardService.GetDTOCards(UserEmail, out int statusCode, out string? message);
+            if (cardDTOs is not null)
+            {
+                return StatusCode(statusCode, cardDTOs);
+            }
+            return StatusCode(statusCode, message);
         }
 
-        return StatusCode(statusCode, message);
+        return StatusCode(401, "Usted no tiene los permisos necesarios.");
     }
+
 }

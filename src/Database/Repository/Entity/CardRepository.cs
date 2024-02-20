@@ -12,6 +12,8 @@ namespace HomeBankingMindHub.Database.Repository;
                                                                     .Any();
     public bool IsIDAvailable(string id) => !FindByCondition(card => card.Id == id).Any();
 
+    public IEnumerable<Card> FindCardsByClientID(string clientID) => FindByCondition(card => card.ClientID == clientID);
+    
     public void Save(Card card)
     {
         if(!IsIDAvailable(card.Id))

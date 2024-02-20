@@ -4,23 +4,53 @@ using HomeBankingMindHub.Model.DTO;
 using HomeBankingMindHub.Model.Entity;
 using HomeBankingMindHub.Model.Model.Client;
 using HomeBankingMindHub.Service.Interface;
-using HomeBankingMindHub.Utils;
-using Microsoft.DotNet.Scaffolding.Shared.Messaging;
+using Microsoft.IdentityModel.Tokens;
 
 namespace HomeBankingMindHub.Service.Instance;
 
 public class CardService(ICardRepository _cardRepository, IClientRepository _clientRepository) : ICardService
 {
-    public CardDTO? PostCard(PostCardModel model, ClaimsPrincipal claims, out int statusCode, out string? message)
+    public CardDTO[]? GetDTOCards(string Email, out int statusCode, out string? message)
     {
-#pragma warning disable
-        string Id = claims.FindFirstValue("Client");
-#pragma warning restore
-        if (Id is not null)
+        string? ClientID = _clientRepository.FindByEmail(Email).Id;
+
+        if(!ClientID.IsNullOrEmpty())
         {
+            IEnumerable<Card> cards = _cardRepository.FindCardsByClientID(ClientID);
+            if(cards.Any())
+            {
+                CardDTO[] DTOCards = new CardDTO[cards.Count()];
+                int index = 0;
+
+                foreach(Card card in cards)
+                {
+                    DTOCards[index] = LoadCardDTO(card);
+                    index++;
+                }
+                
+                if(DTOCards.Length != 0)
+                {
+                    statusCode = 200;
+                    message = null;
+                    return DTOCards;
+                }
+            }
+            message = "No hay tarjetas cardas asociadas a ese cliente.";
+            statusCode = 200;
+        }
+        else
+        {
+            statusCode = 403;
+            message = "El usuario no se ha podido encontrar";
+        }
+        return null;
+    }
+
+    public CardDTO? PostCard(PostCardModel model, string Email, out int statusCode, out string? message)
+    {
             try
             {
-                Client? client = _clientRepository.FindByEmail(Id);
+                Client? client = _clientRepository.FindByEmail(Email);
                 Random random = new();
                 if (client is not null)
                 {
@@ -50,24 +80,12 @@ public class CardService(ICardRepository _cardRepository, IClientRepository _cli
 
                             statusCode = 201;
                             message = null;
-                            return new CardDTO
-                            {
-                                Id = card.Id,
-                                CardHolder = card.CardHolder,
-                                CVV = card.CVV,
-
-                                Type = card.Type.ToString(),
-                                Color = card.Color.ToString(),
-                                Number = card.Number,
-
-                                FromDate = card.FromDate,
-                                ThruDate = card.ThruDate
-                            };
+                            return LoadCardDTO(card);
                         }
                         else
                         {
                             statusCode = 403;
-                            message = $"Usted ha alcanzado el maximo de tarjetas de tipo {model.Type.ToLower() + "s"}.";
+                            message = $"Usted ya posee una tarjeta del tipo {model.Type + " " + model.Color}.";
                         }
                     }
                     else
@@ -87,14 +105,17 @@ public class CardService(ICardRepository _cardRepository, IClientRepository _cli
                 statusCode = 500;
                 message = ex.ToString();
             }
-        }
-
-        else
-        {
-            statusCode = 401;
-            message = "No tienes permisos para hacer esta acción.";
-        }
-
         return null;
     }
+
+    private static CardDTO LoadCardDTO(Card card) => new() {Id = card.Id,
+                                CardHolder = card.CardHolder,
+                                CVV = card.CVV,
+
+                                Type = card.Type.ToString(),
+                                Color = card.Color.ToString(),
+                                Number = card.Number,
+
+                                FromDate = card.FromDate,
+                                ThruDate = card.ThruDate};
 }

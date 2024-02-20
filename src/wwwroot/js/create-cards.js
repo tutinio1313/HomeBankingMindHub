@@ -13,8 +13,8 @@ var app = new Vue({
         signOut: function(){
             axios.post('/api/auth/logout')
             .then(response => window.location.href="/index.html")
-            .catch(() =>{
-                this.errorMsg = "Sign out failed"   
+            .catch((response) =>{
+                this.errorMsg = response,data;   
                 this.errorToats.show();
             })
         },
@@ -40,8 +40,8 @@ var app = new Vue({
                     color: this.cardColor,
                 })
                     .then(() => { window.location.href = "/cards.html" })
-                    .catch(() => {
-                        this.errorMsg = "Sign up failed, check the information"
+                    .catch((response) => {
+                        this.errorMsg = response.response.data;
                         this.errorToats.show();
                     })
             }
