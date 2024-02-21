@@ -6,5 +6,5 @@ namespace HomeBankingMindHub.Service.Interface;
 
 public interface ITransactionService
 {
-    public IEnumerable<TransactionDTO>? Post(ClaimsPrincipal claims,PostTransactionModel model, out int statusCode, out string? message);   
+    public IEnumerable<TransactionDTO>? Post(string email,PostTransactionModel model, out int statusCode, out string? message);   
 }

@@ -11,70 +11,62 @@ using System.ComponentModel;
 namespace HomeBankingMindHub.Service.Instance;
 
 public class TransactionService(ITransactionRepository transactionRepository
-                                ,IAccountRepository accountRepository
-                                ,IClientRepository clientRepository) : ITransactionService
+                                , IAccountRepository accountRepository
+                                , IClientRepository clientRepository) : ITransactionService
 {
-    public IEnumerable<TransactionDTO>? Post(ClaimsPrincipal claims, PostTransactionModel model, out int statusCode, out string? message)
+    public IEnumerable<TransactionDTO>? Post(string Email, PostTransactionModel model, out int statusCode, out string? message)
     {
         try
         {
             if (!model.FromAccountNumber.Equals(model.ToAccountNumber))
             {
-                string? UserEmail = claims.FindFirst("Client")?.Value;
-                if (UserEmail is not null)
+
+                Account? fromAccount = accountRepository.GetAccountByNumber(Number: model.FromAccountNumber.ToUpper());
+                Account? toAccount = accountRepository.GetAccountByNumber(Number: model.ToAccountNumber.ToUpper());
+
+                if (fromAccount is not null && toAccount is not null)
                 {
-                    Account? fromAccount = accountRepository.GetAccountByNumber(Number: model.FromAccountNumber.ToUpper());
-                    Account? toAccount = accountRepository.GetAccountByNumber(Number: model.ToAccountNumber.ToUpper());
-
-                    if (fromAccount is not null && toAccount is not null)
+                    if (clientRepository.FindByID(fromAccount.ClientId).Email.Equals(Email))
                     {
-                        if (clientRepository.FindByID(fromAccount.ClientId).Email.Equals(UserEmail))
+                        if (fromAccount.Balance - model.Amount >= 0)
                         {
-                            if (fromAccount.Balance - model.Amount >= 0)
-                            {
-                                fromAccount.SetBalance(-model.Amount);
-                                toAccount.SetBalance(model.Amount);
+                            fromAccount.SetBalance(-model.Amount);
+                            toAccount.SetBalance(model.Amount);
 
-                                accountRepository.Put(fromAccount);
-                                accountRepository.Put(toAccount);
+                            accountRepository.Put(fromAccount);
+                            accountRepository.Put(toAccount);
 
-                                Transaction fromTransaction = LoadTransaction( model: model, account:fromAccount, type: TransactionType.DEBIT);
-                                Transaction toTransaction =  LoadTransaction( model: model, account:toAccount, type: TransactionType.CREDIT);
+                            Transaction fromTransaction = LoadTransaction(model: model, account: fromAccount, type: TransactionType.DEBIT);
+                            Transaction toTransaction = LoadTransaction(model: model, account: toAccount, type: TransactionType.CREDIT);
 
-                                fromTransaction.Description = string.Concat(fromTransaction.Description, " ", toAccount.Number);
-                                toTransaction.Description = string.Concat(toTransaction.Description, " ", fromAccount.Number);
+                            fromTransaction.Description = string.Concat(fromTransaction.Description, " ", toAccount.Number);
+                            toTransaction.Description = string.Concat(toTransaction.Description, " ", fromAccount.Number);
 
-                                transactionRepository.Save(fromTransaction);
-                                transactionRepository.Save(toTransaction);
+                            transactionRepository.Save(fromTransaction);
+                            transactionRepository.Save(toTransaction);
 
-                                message = null;
-                                statusCode = 201;
-                                return [LoadTransactionDTO(1, fromTransaction), LoadTransactionDTO(2,toTransaction)];
-                            }
-                            else
-                            {
-                                message = "No tiene fondos suficientes.";
-                                statusCode = 403;
-                            }
+                            message = null;
+                            statusCode = 201;
+                            return [LoadTransactionDTO(1, fromTransaction), LoadTransactionDTO(2, toTransaction)];
                         }
                         else
                         {
-                            message = "La cuenta ingresada no le pertenece al usuario ingresado.";
-                            statusCode = 401;
+                            message = "No tiene fondos suficientes.";
+                            statusCode = 403;
                         }
                     }
                     else
                     {
-                        if (fromAccount is null && toAccount is null) message = "Las cuentas ingresadas no son validas.";
-                        else if (toAccount is null) message = "La cuenta receptora no es valida.";
-                        else message = "La cuenta emisora no es valida.";
-                        statusCode = 400;
+                        message = "La cuenta ingresada no le pertenece al usuario ingresado.";
+                        statusCode = 401;
                     }
                 }
                 else
                 {
-                    message = "No se ha encontrado el usuario.";
-                    statusCode = 401;
+                    if (fromAccount is null && toAccount is null) message = "Las cuentas ingresadas no son validas.";
+                    else if (toAccount is null) message = "La cuenta receptora no es valida.";
+                    else message = "La cuenta emisora no es valida.";
+                    statusCode = 400;
                 }
             }
             else
@@ -95,12 +87,18 @@ public class TransactionService(ITransactionRepository transactionRepository
     private static Transaction LoadTransaction(PostTransactionModel model, Account account, TransactionType type) => new()
     {
         ID = Guid.NewGuid().ToString()
-        ,Type = type
-        ,Description = model.Description
-        ,Date = DateTime.Now
-        ,Account = account
-        ,AccountId = account.Id
-        ,Amount = model.Amount
+        ,
+        Type = type
+        ,
+        Description = model.Description
+        ,
+        Date = DateTime.Now
+        ,
+        Account = account
+        ,
+        AccountId = account.Id
+        ,
+        Amount = model.Amount
     };
     private static TransactionDTO LoadTransactionDTO(int index, Transaction transaction) => new()
     {

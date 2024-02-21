@@ -7,6 +7,8 @@ using HomeBankingMindHub.Model.Model.Transaction;
 using System.Collections.Immutable;
 using HomeBankingMindHub.Service.Interface;
 using HomeBankingMindHub.Model.DTO;
+using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
 
 namespace HomeBankingMindHub.Controllers;
 
@@ -17,13 +19,19 @@ public class TransactionController(ITransactionService transactionService) : Con
     [HttpPost]
     public ActionResult Post([FromBody] PostTransactionModel model)
     {
-        IEnumerable<TransactionDTO>? transactionsDTOs = transactionService.Post(claims : User,model : model,statusCode :out int statusCode,message : out string? message);
+        string? Email = User.FindFirstValue("Client");
 
-            if(transactionsDTOs is not null)
-            {
-                return StatusCode(statusCode, transactionsDTOs);
-            }
+        if(!Email.IsNullOrEmpty())
+        {
+            IEnumerable<TransactionDTO>? transactionsDTOs = transactionService.Post(email : Email,model : model,statusCode :out int statusCode,message : out string? message);
 
-            return StatusCode(statusCode, message);        
+                if(transactionsDTOs is not null)
+                {
+                    return StatusCode(statusCode, transactionsDTOs);
+                }
+
+                return StatusCode(statusCode, message);        
+        }
+        return StatusCode(401, "No tienes los permisos necesarios para realizar esta acción.");
     }
 }
