@@ -23,10 +23,10 @@ public class LoanApplicationModel
     [Length(
     minimumLength: 12
     , maximumLength: 12
-    , ErrorMessage = "La cuenta emisor no es correcto.")
+    , ErrorMessage = "El número de cuenta no es correcto.")
     ]
     [RegularExpression(@"[V|v][I|i][n|N]-\d\d\d\d\d\d\d\d"
-    , ErrorMessage = "El número de cuenta emisor no tiene el formato correcto.")]
+    , ErrorMessage = "El número de cuenta no tiene el formato correcto.")]
     public required string NumberAccount { get; set; }
     [Required(ErrorMessage = "El plazo de pagos es requerido.")]
     public required string Payment { get; set; }

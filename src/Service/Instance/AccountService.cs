@@ -57,55 +57,48 @@ public class AccountService(IAccountRepository _accountRepository, IClientReposi
         return null;
     }
 
-    public IEnumerable<AccountDTO>? GetAllAcountsByEmail(ClaimsPrincipal claims, out int StatusCode, out string? message)
+    public IEnumerable<AccountDTO>? GetAllAcountsByEmail(string UserEmail, out int StatusCode, out string? message)
     {
-        string? UserEmail = claims.FindFirst("Client")?.Value;
 
-        if (UserEmail is not null)
+        message = null;
+        StatusCode = 200;
+        IEnumerable<Account> accounts = _accountRepository.GetAccountsByClient(UserEmail);
+
+        if(accounts.Any())
         {
-            message = null;
-            StatusCode = 200;
-            Account[]? accounts = _accountRepository.GetAccountsByClient(UserEmail).ToArray();
             AccountDTO[] accountDTOs = new AccountDTO[accounts.Count()];
-            int index = 0;
-            
-
-            foreach (Account account in accounts)
+        int index = 0;
+        foreach (Account account in accounts)
+        {
+            int TransactionIndex = 1;
+            accountDTOs[index] = new()
             {
-                int TransactionIndex = 1;
-                accountDTOs[index] = new()
-                {
                 ID = account.Id,
-                    Number = account.Number,
-                    CreationDate = account.CreationTime,
-                    Balance = account.Balance,
+                Number = account.Number,
+                CreationDate = account.CreationTime,
+                Balance = account.Balance,
 
 
 #pragma warning disable
-                    Transactions = account.Transactions.Select(transaction => new TransactionDTO
-                    {
-                        ID = TransactionIndex++.ToString(),
-                        Type = transaction.Type.ToString(),
-                        Amount = transaction.Amount,
-                        Description = transaction.Description,
-                        Date = transaction.Date,
-                        AccountId = transaction.AccountId
-                    })
+                Transactions = account.Transactions.Select(transaction => new TransactionDTO
+                {
+                    ID = TransactionIndex++.ToString(),
+                    Type = transaction.Type.ToString(),
+                    Amount = transaction.Amount,
+                    Description = transaction.Description,
+                    Date = transaction.Date,
+                    AccountId = transaction.AccountId
+                })
 #pragma warning restore
-                };
-                index++;
-            }
-
-
-            return accountDTOs;
-        }
-        else
-        {
-            message = "El usuario no se ha encontrado.";
-            StatusCode = 401;
+            };
+            index++;
         }
 
-        return null;
+
+        return accountDTOs;
+        }
+        message = "El usuario ingresado no tiene cuentas.";        
+        return null;        
     }
 
     public AccountDTO? GetByID(string id, out int StatusCode, out string? message)
@@ -142,72 +135,64 @@ public class AccountService(IAccountRepository _accountRepository, IClientReposi
         return null;
     }
 
-    public AccountDTO? PostAccount(ClaimsPrincipal claims, out int StatusCode, out string? message)
+    public AccountDTO? PostAccount(string UserEmail, out int StatusCode, out string? message)
     {
-        string? Id = claims.FindFirstValue("Client");
-
-        if (Id is not null)
+        try
         {
-            try
+            Client? user = _clientRepository.FindByEmail(UserEmail);
+
+
+            if (user is not null)
             {
-                Client? user = _clientRepository.FindByEmail(Id);
-
-
-                if (user is not null)
+                bool canPost = _accountRepository.CanPostNewAccount(UserEmail);
+                if (canPost)
                 {
-                    bool canPost = _accountRepository.CanPostNewAccount(Id);
-                    if (canPost)
+                    Random random = new();
+                    string AccountNumber = Utils.Utils.GenerateAccountNumber(random, ref _accountRepository);
+                    Account account = new()
                     {
-                        Random random = new();
-                        string AccountNumber = Utils.Utils.GenerateAccountNumber(random, ref _accountRepository);
-                        Account account = new()
-                        {
-                            Id = Guid.NewGuid().ToString(),
-                            CreationTime = DateTime.Now,
-                            Balance = 0,
-                            Number = AccountNumber,
+                        Id = Guid.NewGuid().ToString(),
+                        CreationTime = DateTime.Now,
+                        Balance = 0,
+                        Number = AccountNumber,
 
-                            ClientId = user.Id,
-                            Client = user,
-                        };
+                        ClientId = user.Id,
+                        Client = user,
+                    };
 
-                        _accountRepository.Save(account);
+                    _accountRepository.Save(account);
 
-                        StatusCode = 201;
-                        message = "La cuenta se ha creado satisfactoriamente.";
-                        return new AccountDTO()
-                        {
-                            ID = account.Id,
-                            Number = account.Number,
-
-                            CreationDate = account.CreationTime,
-                            Balance = account.Balance
-                        };
-                    }
-
-                    else
+                    StatusCode = 201;
+                    message = "La cuenta se ha creado satisfactoriamente.";
+                    return new AccountDTO()
                     {
-                        StatusCode = 403;
-                        message = "No se ha podido crear una cuenta bancaria, ya posee el maximo de cuentas.";
-                    }
+                        ID = account.Id,
+                        Number = account.Number,
+
+                        CreationDate = account.CreationTime,
+                        Balance = account.Balance
+                    };
                 }
+
                 else
                 {
                     StatusCode = 403;
-                    message = "No se ha encontrado su usuario.";
+                    message = "No se ha podido crear una cuenta bancaria, ya posee el maximo de cuentas.";
                 }
             }
-            catch (Exception ex)
+            else
             {
-                StatusCode = 500;
-                message = ex.ToString();
+                StatusCode = 403;
+                message = "No se ha encontrado su usuario.";
             }
         }
-        else
+        catch (Exception ex)
         {
-            StatusCode = 401;
-            message = "No se ha podido validar su cuenta";
+            StatusCode = 500;
+            message = ex.ToString();
         }
+
+
         return null;
     }
 }

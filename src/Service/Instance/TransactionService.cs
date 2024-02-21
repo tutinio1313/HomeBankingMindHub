@@ -6,6 +6,7 @@ using HomeBankingMindHub.Model.DTO;
 
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
+using System.ComponentModel;
 
 namespace HomeBankingMindHub.Service.Instance;
 
@@ -39,6 +40,9 @@ public class TransactionService(ITransactionRepository transactionRepository
 
                                 Transaction fromTransaction = LoadTransaction( model: model, account:fromAccount, type: TransactionType.DEBIT);
                                 Transaction toTransaction =  LoadTransaction( model: model, account:toAccount, type: TransactionType.CREDIT);
+
+                                fromTransaction.Description = string.Concat(fromTransaction.Description, " ", toAccount.Number);
+                                toTransaction.Description = string.Concat(toTransaction.Description, " ", fromAccount.Number);
 
                                 transactionRepository.Save(fromTransaction);
                                 transactionRepository.Save(toTransaction);

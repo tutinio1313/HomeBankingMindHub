@@ -54,13 +54,19 @@ public class ClientController(IAccountService accountService, IClientService cli
     [HttpGet("current/account")]
     public IActionResult GetCurrentAccounts()
     {
-        IEnumerable<AccountDTO>? accountsDTOs = accountService.GetAllAcountsByEmail(User, out int statusCode, out string? message);
-        if (accountsDTOs is not null)
-        {
-            return StatusCode(statusCode, accountsDTOs);
-        }
+        string? UserEmail = User.FindFirstValue("Client");
 
-        return StatusCode(statusCode, message);
+        if(!UserEmail.IsNullOrEmpty())
+        {
+            IEnumerable<AccountDTO>? accountsDTOs = accountService.GetAllAcountsByEmail(UserEmail: UserEmail, out int statusCode, out string? message);
+            if (accountsDTOs is not null)
+            {
+                return StatusCode(statusCode, accountsDTOs);
+            }
+
+            return StatusCode(statusCode, message);
+        }
+        return StatusCode(401, "Usted no tiene los permisos necesarios.");        
     }
     [HttpPost]
     public IActionResult Post([FromBody] PostModel model)
@@ -77,16 +83,22 @@ public class ClientController(IAccountService accountService, IClientService cli
     [HttpPost("current/accounts")]
     public ActionResult PostAccount()
     {
-        AccountDTO? response = accountService.PostAccount(User
-        , out int statusCode
-        , out string? message);
+        string? UserEmail = User.FindFirstValue("Client");
 
-        if (statusCode == 201)
+        if(!UserEmail.IsNullOrEmpty())
         {
-            return StatusCode(201, response);
-        }
+            AccountDTO? response = accountService.PostAccount(UserEmail
+            , out int statusCode
+            , out string? message);
 
-        return StatusCode(statusCode, message);
+            if (statusCode == 201)
+            {
+                return StatusCode(201, response);
+            }
+
+            return StatusCode(statusCode, message);
+        }
+        return StatusCode(401, "Usted no tiene los permisos necesarios.");
     }
 
     [HttpPost("current/cards")]
