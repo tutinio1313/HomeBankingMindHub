@@ -6,10 +6,12 @@ namespace HomeBankingMindHub.Database.Repository;
     public class CardRepository(HomeBankingContext context) : Repository<Card>(context), ICardRepository
     {
     public bool ExistsCardByNumber(string number) => FindByCondition(x => x.Number == number).Any();
+    #pragma warning disable
     public bool CanPostNewCard(string clientID, CardType? Type, CardColor? Color) => !FindByCondition(x => x.ClientID == clientID)
                                                                     .Where(x => x.Type == (CardType)Type)
                                                                     .Where(x => x.Color == (CardColor)Color)
                                                                     .Any();
+    #pragma warning restore
     public bool IsIDAvailable(string id) => !FindByCondition(card => card.Id == id).Any();
 
     public IEnumerable<Card> FindCardsByClientID(string clientID) => FindByCondition(card => card.ClientID == clientID);

@@ -8,7 +8,7 @@ public interface IClientsLoanService
 {
     public ClientsLoanDTO? Post(
         LoanApplicationModel model
-        ,ClaimsPrincipal User
+        ,string UserEmail
         , out int statusCode
         , out string? message);    
 }

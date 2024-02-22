@@ -11,100 +11,94 @@ namespace HomeBankingMindHub.Service.Instance;
 
 public class ClientsLoanService(
                             IClientRepository clientRepository
-                            ,IClientLoanRepository clientLoanRepository
-                            ,ITransactionRepository transactionRepository
+                            , IClientLoanRepository clientLoanRepository
+                            , ITransactionRepository transactionRepository
                             , ILoanRepository loanRepository
-                            , IAccountRepository accountRepository) 
+                            , IAccountRepository accountRepository)
 : IClientsLoanService
 {
     public ClientsLoanDTO? Post(
         LoanApplicationModel model
-        ,ClaimsPrincipal User
-        ,out int statusCode
+        , string UserEmail
+        , out int statusCode
         , out string? message)
     {
-        string? UserEmail = User.FindFirst("Client")?.Value;
 
-        if(!UserEmail.IsNullOrEmpty())
+        Client? client = clientRepository.FindByEmail(UserEmail);
+        if (client is not null)
         {
-            Client? client = clientRepository.FindByEmail(UserEmail);
-            if(client is not null)
+            Loan? loan = loanRepository.GetByID(model.LoanID);
+            if (loan is not null)
             {
-                Loan? loan = loanRepository.GetByID(model.LoanID);
-                if(loan is not null)
+                if (loan.MaxAmount >= model.Amount)
                 {
-                    if(loan.MaxAmount >= model.Amount)
+                    if (loan.Payment.Contains(model.Payment))
                     {
-                        if(loan.Payment.Contains(model.Payment))
+                        Account? account = accountRepository.GetAccountByNumber(model.NumberAccount);
+
+                        if (account is not null)
                         {
-                            Account? account = accountRepository.GetAccountByNumber(model.NumberAccount);
-
-                            if(account is not null)
+                            if (account.ClientId == client.Id)
                             {
-                                if(account.ClientId == client.Id)
+                                Transaction transaction = LoadTransaction(account, model, loan);
+                                transactionRepository.Save(transaction);
+
+                                account.SetBalance(transaction.Amount);
+                                accountRepository.Put(account);
+
+                                ClientsLoan clientsLoan = LoadClientsLoan(client, model, loan);
+                                clientLoanRepository.Save(clientsLoan);
+
+                                statusCode = 201;
+                                message = null;
+
+                                return new ClientsLoanDTO()
                                 {
-                                    Transaction transaction = LoadTransaction(account, model, loan);
-                                    transactionRepository.Save(transaction);
-
-                                    account.SetBalance(transaction.Amount);
-                                    accountRepository.Put(account);
-
-                                    ClientsLoan clientsLoan = LoadClientsLoan(client, model, loan);
-                                    clientLoanRepository.Save(clientsLoan);
-
-                                    statusCode = 201;
-                                    message = null;
-
-                                    return new ClientsLoanDTO() {
-                                        ID = clientsLoan.ID
-                                        ,Name = loan.Name
-                                        ,Amount = clientsLoan.Amount
-                                        ,Payments = clientsLoan.Payment
-                                    };
-                                }
-
-                                else
-                                {
-                                    statusCode = 403;
-                                    message = "La cuenta ingresada no es del cliente.";
-                                }
+                                    ID = clientsLoan.ID
+                                    ,
+                                    Name = loan.Name
+                                    ,
+                                    Amount = clientsLoan.Amount
+                                    ,
+                                    Payments = clientsLoan.Payment
+                                };
                             }
+
                             else
                             {
                                 statusCode = 403;
-                                message = "No se ha encontrado la cuenta del cliente.";
+                                message = "La cuenta ingresada no es del cliente.";
                             }
                         }
                         else
                         {
                             statusCode = 403;
-                            message = "Las cuotas ingresadas del prestamo no son validas.";
+                            message = "No se ha encontrado la cuenta del cliente.";
                         }
                     }
-                    else 
+                    else
                     {
                         statusCode = 403;
-                        message = "El prestamo solicitado excede el maximo permitido.";
+                        message = "Las cuotas ingresadas del prestamo no son validas.";
                     }
-                }   
-
+                }
                 else
                 {
                     statusCode = 403;
-                    message = "El prestamo solicitado no se ha podido encontrar.";
-                }         
+                    message = "El prestamo solicitado excede el maximo permitido.";
+                }
             }
+
             else
             {
                 statusCode = 403;
-                message = "No se ha podido encontrar el usuario.";
+                message = "El prestamo solicitado no se ha podido encontrar.";
             }
         }
-
         else
         {
-            statusCode = 401;
-            message = "No se ha podido validar tu usuario.";
+            statusCode = 403;
+            message = "No se ha podido encontrar el usuario.";
         }
 
         return null;
@@ -112,29 +106,43 @@ public class ClientsLoanService(
 
 
     private Transaction LoadTransaction(Account account
-                                        ,LoanApplicationModel model
-                                        ,Loan loan) => new() {
-        ID = Guid.NewGuid().ToString()
-        ,Type = TransactionType.CREDIT
-        ,Date = DateTime.Now
-        ,Description = string.Concat(loan.Name, " - Loan approved!")
-        ,Amount = model.Amount        
-        ,Account = account
-        ,AccountId = account.Id
-    };
+                                        , LoanApplicationModel model
+                                        , Loan loan) => new()
+                                        {
+                                            ID = Guid.NewGuid().ToString()
+        ,
+                                            Type = TransactionType.CREDIT
+        ,
+                                            Date = DateTime.Now
+        ,
+                                            Description = string.Concat(loan.Name, " - Loan approved!")
+        ,
+                                            Amount = model.Amount
+        ,
+                                            Account = account
+        ,
+                                            AccountId = account.Id
+                                        };
 
     private ClientsLoan LoadClientsLoan(Client client
-                                        ,LoanApplicationModel model
-                                        ,Loan loan) => new() {
-        ID = Guid.NewGuid().ToString()
-        
-        ,Amount =  model.Amount * 1.2
-        ,Payment = model.Payment
+                                        , LoanApplicationModel model
+                                        , Loan loan) => new()
+                                        {
+                                            ID = Guid.NewGuid().ToString()
 
-        ,Client = client
-        ,ClientID = client.Id
-        
-        ,Loan = loan
-        ,LoanID = loan.ID
-    };
+        ,
+                                            Amount = model.Amount * 1.2
+        ,
+                                            Payment = model.Payment
+
+        ,
+                                            Client = client
+        ,
+                                            ClientID = client.Id
+
+        ,
+                                            Loan = loan
+        ,
+                                            LoanID = loan.ID
+                                        };
 }

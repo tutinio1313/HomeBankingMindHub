@@ -6,6 +6,7 @@ using HomeBankingMindHub.Database.Repository;
 using HomeBankingMindHub.Model.Entity;
 using HomeBankingMindHub.Model.DTO;
 using HomeBankingMindHub.Service.Interface;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HomeBankingMindHub.Controllers
 {
@@ -14,6 +15,7 @@ namespace HomeBankingMindHub.Controllers
     public class AccountController(IAccountService accountService) : ControllerBase
     {
         [HttpGet]
+        [Authorize]
         public ActionResult<IEnumerable<AccountDTO>> Get()
         {
             var accounts = accountService.GetAll(
@@ -29,6 +31,7 @@ namespace HomeBankingMindHub.Controllers
         
 
         [HttpGet("{id}")]
+        
         public ActionResult<AccountDTO> Get(string id)
         {
             var account = accountService.GetByID(id : id,

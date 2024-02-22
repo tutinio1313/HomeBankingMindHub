@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication;
 
 using HomeBankingMindHub.Model.Model.Auth;
 using HomeBankingMindHub.Service.Interface;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace HomeBankingMindHub.Controllers;
 
@@ -12,15 +13,31 @@ namespace HomeBankingMindHub.Controllers;
 [ApiController]
 public class AuthController(IAuthService authService) : ControllerBase
 {
+    // [HttpPost("Login")]
+    // public async Task<IActionResult> Login([FromBody] LoginModel model)
+    // {
+    //     ClaimsIdentity? result = authService.Login(model, out int statusCode, out string? message);
+
+    //     if(result is not null)
+    //     {
+    //         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(result));
+    //         return StatusCode(statusCode);
+    //     }
+
+    //     return StatusCode(statusCode, message);
+    // }
+
     [HttpPost("Login")]
-    public async Task<IActionResult> Login([FromBody] LoginModel model)
+    public IActionResult Login([FromBody] LoginModel model)
     {
-        ClaimsIdentity? result = authService.Login(model, out int statusCode, out string? message);
+        string? result = authService.Login(model, out int statusCode, out string? message);
+
+        Console.WriteLine(result);
+
 
         if(result is not null)
         {
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(result));
-            return StatusCode(statusCode);
+            return StatusCode(statusCode, result);
         }
 
         return StatusCode(statusCode, message);

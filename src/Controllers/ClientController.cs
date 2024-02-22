@@ -5,6 +5,7 @@ using HomeBankingMindHub.Model.DTO;
 using HomeBankingMindHub.Service.Interface;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HomeBankingMindHub.Controllers;
 
@@ -28,6 +29,7 @@ public class ClientController(IAccountService accountService, IClientService cli
         return StatusCode(statusCode, message);
     }
     [HttpGet("current")]
+    [Authorize]
     public IActionResult GetCurrent()
     {
         ClientDTO? client = clientService.GetCurrent(User, out int statusCode, out string? message);
@@ -52,13 +54,16 @@ public class ClientController(IAccountService accountService, IClientService cli
         return StatusCode(statusCode, message);
     }
     [HttpGet("current/account")]
+    [Authorize]
     public IActionResult GetCurrentAccounts()
     {
-        string? UserEmail = User.FindFirstValue("Client");
+        string? UserEmail = User.FindFirstValue(ClaimTypes.Email);
 
-        if(!UserEmail.IsNullOrEmpty())
+        if (!UserEmail.IsNullOrEmpty())
         {
+            #pragma warning disable
             IEnumerable<AccountDTO>? accountsDTOs = accountService.GetAllAcountsByEmail(UserEmail: UserEmail, out int statusCode, out string? message);
+            #pragma warning restore
             if (accountsDTOs is not null)
             {
                 return StatusCode(statusCode, accountsDTOs);
@@ -66,7 +71,7 @@ public class ClientController(IAccountService accountService, IClientService cli
 
             return StatusCode(statusCode, message);
         }
-        return StatusCode(401, "Usted no tiene los permisos necesarios.");        
+        return StatusCode(401, "Usted no tiene los permisos necesarios.");
     }
     [HttpPost]
     public IActionResult Post([FromBody] PostModel model)
@@ -81,16 +86,17 @@ public class ClientController(IAccountService accountService, IClientService cli
         return StatusCode(statusCode, message);
     }
     [HttpPost("current/accounts")]
+    [Authorize]
     public ActionResult PostAccount()
     {
-        string? UserEmail = User.FindFirstValue("Client");
-
-        if(!UserEmail.IsNullOrEmpty())
+        string? UserEmail = User.FindFirstValue(ClaimTypes.Email);
+#pragma warning disable
+        if (!UserEmail.IsNullOrEmpty())
         {
             AccountDTO? response = accountService.PostAccount(UserEmail
             , out int statusCode
             , out string? message);
-
+#pragma warning restore
             if (statusCode == 201)
             {
                 return StatusCode(201, response);
@@ -102,14 +108,16 @@ public class ClientController(IAccountService accountService, IClientService cli
     }
 
     [HttpPost("current/cards")]
+    [Authorize]
     public ActionResult PostCard(PostCardModel model)
     {
-        string? UserEmail = User.FindFirstValue("Client");
+        string? UserEmail = User.FindFirstValue(ClaimTypes.Email);
 
         if (!UserEmail.IsNullOrEmpty())
         {
-            CardDTO? card = cardService.PostCard(model: model, Email:  UserEmail, out int statusCode, out string? message);
-
+#pragma warning disable
+            CardDTO? card = cardService.PostCard(model: model, Email: UserEmail, out int statusCode, out string? message);
+#pragma warning restore
             if (card is not null)
             {
                 return StatusCode(statusCode, card);
@@ -120,14 +128,17 @@ public class ClientController(IAccountService accountService, IClientService cli
     }
 
     [HttpGet("current/cards")]
+    [Authorize]
     public ActionResult GetCards()
     {
 
-        string? UserEmail = User.FindFirstValue("Client");
+        string? UserEmail = User.FindFirstValue(ClaimTypes.Email);
 
         if (!UserEmail.IsNullOrEmpty())
         {
+            #pragma warning disable
             CardDTO[]? cardDTOs = cardService.GetDTOCards(UserEmail, out int statusCode, out string? message);
+            #pragma warning restore
             if (cardDTOs is not null)
             {
                 return StatusCode(statusCode, cardDTOs);

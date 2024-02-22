@@ -26,8 +26,10 @@ public class TransactionService(ITransactionRepository transactionRepository
 
                 if (fromAccount is not null && toAccount is not null)
                 {
+                    #pragma warning disable
                     if (clientRepository.FindByID(fromAccount.ClientId).Email.Equals(Email))
-                    {
+                    #pragma warning restore
+                    { 
                         if (fromAccount.Balance - model.Amount >= 0)
                         {
                             fromAccount.SetBalance(-model.Amount);

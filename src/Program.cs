@@ -1,8 +1,6 @@
-using Microsoft.EntityFrameworkCore.SqlServer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Design;
-using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 using HomeBankingMindHub.Database;
 using HomeBankingMindHub.Database.Repository;
@@ -12,7 +10,6 @@ using HomeBankingMindHub.Service.Interface;
 var builder = WebApplication.CreateBuilder(args);
 
 
-// Add services to the container.
 builder.Services.AddDbContext<HomeBankingContext>(options =>
 {
     options.UseSqlServer(
@@ -21,6 +18,7 @@ builder.Services.AddDbContext<HomeBankingContext>(options =>
     options.EnableSensitiveDataLogging();
 });
 
+//Repository Services.
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<ICardRepository, CardRepository>();
@@ -28,56 +26,65 @@ builder.Services.AddScoped<IClientLoanRepository, ClientLoanRepository>();
 builder.Services.AddScoped<ILoanRepository, LoanRepository>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 
+//Entity Services.
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IClientService, ClientService>();
 builder.Services.AddScoped<ILoanService, LoanService>();
 builder.Services.AddScoped<IClientsLoanService, ClientsLoanService>();
 builder.Services.AddScoped<ICardService, CardService>();
+
+//Auxiliar services.
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IKeyService, KeyService>();
 
 builder.Services.AddControllers();
 
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie(options =>
+//Added JWT to project.
+builder.Services.AddAuthentication("Bearer")
+                .AddJwtBearer(options =>
                             {
-                                options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
-                                options.LoginPath = new PathString("/index.html");
-                            });
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("ClientOnly", policy => policy.RequireClaim("Client"));
-});
+                                SymmetricSecurityKey SymmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
+                                        builder.Configuration["JWTKey"]));
+                                SigningCredentials SigningCredentials = new SigningCredentials(
+                                        SymmetricSecurityKey
+                                        , SecurityAlgorithms.HmacSha256Signature);
+                                options.RequireHttpsMetadata = false;
+                                options.TokenValidationParameters = new()
+                                {
+                                    ValidateAudience = false,
+                                    ValidateIssuer = false,
+                                    ValidateLifetime = true,
 
+                                    IssuerSigningKey = SymmetricSecurityKey
+                                };
+                            })
+                    .AddCookie();
+builder.Services.AddAuthorization();
+
+//Some dependencies needed to use Swagger.
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-DBInitialazer.PopulateDB(app);
 
+//DBInitialzer to populate DB.
+DBInitialazer.PopulateDB(app);
 //DBInitialazer.SetAccountBalance();
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
-}
-else
+if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseAuthorization();
 app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseDefaultFiles();
 app.UseStaticFiles();

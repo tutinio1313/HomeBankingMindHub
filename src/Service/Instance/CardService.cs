@@ -12,7 +12,9 @@ public class CardService(ICardRepository _cardRepository, IClientRepository _cli
 {
     public CardDTO[]? GetDTOCards(string Email, out int statusCode, out string? message)
     {
+        #pragma warning disable
         string? ClientID = _clientRepository.FindByEmail(Email).Id;
+        #pragma warning restore
 
         if(!ClientID.IsNullOrEmpty())
         {

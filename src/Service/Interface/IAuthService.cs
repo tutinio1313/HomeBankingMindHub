@@ -4,5 +4,6 @@ using HomeBankingMindHub.Model.Model.Auth;
 namespace HomeBankingMindHub.Service.Interface;
 public interface IAuthService
 {
-    public ClaimsIdentity? Login(LoginModel model, out int statusCode, out string? message);
+    //public ClaimsIdentity? Login(LoginModel model, out int statusCode, out string? message);
+    public string? Login(LoginModel model, out int statusCode, out string? message);
 }
