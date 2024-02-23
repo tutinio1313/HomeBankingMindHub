@@ -6,6 +6,7 @@ using HomeBankingMindHub.Database;
 using HomeBankingMindHub.Database.Repository;
 using HomeBankingMindHub.Service.Instance;
 using HomeBankingMindHub.Service.Interface;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,7 +37,7 @@ builder.Services.AddScoped<ICardService, CardService>();
 
 //Auxiliar services.
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IKeyService, KeyService>();
+builder.Services.AddSingleton<IKeyService,KeyService>();
 
 builder.Services.AddControllers();
 

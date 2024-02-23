@@ -19,10 +19,10 @@ public class KeyService(IConfiguration config) : IKeyService
         JwtSecurityTokenHandler tokenHandler = new();
         SecurityTokenDescriptor tokenDescriptor = new()
         {
-            Subject = new ClaimsIdentity(new Claim[]
-            {
+            Subject = new ClaimsIdentity(
+            [
                             new(ClaimTypes.Email, user.Email)
-            }),
+            ]),
             Expires = DateTime.UtcNow.AddDays(15),
             SigningCredentials = new(Key, SecurityAlgorithms.HmacSha256Signature)
         };
