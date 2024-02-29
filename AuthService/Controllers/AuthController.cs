@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authentication;
 using HomeBankingMindHub.Model.Model.Auth;
 using HomeBankingMindHub.Service.Interface;
 
-namespace HomeBankingMindHub.Controllers;
+namespace AuthService.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -17,7 +17,7 @@ public class AuthController(IAuthService authService) : ControllerBase
     {
         ClaimsIdentity? result = authService.Login(model, out int statusCode, out string? message);
 
-        if(result is not null)
+        if (result is not null)
         {
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(result));
             return StatusCode(statusCode);
@@ -29,12 +29,14 @@ public class AuthController(IAuthService authService) : ControllerBase
     [HttpPost("Logout")]
     public async Task<IActionResult> Post()
     {
-        try {
+        try
+        {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return Ok();
         }
 
-        catch (Exception ex) {
+        catch (Exception ex)
+        {
             return StatusCode(500, ex);
         }
     }

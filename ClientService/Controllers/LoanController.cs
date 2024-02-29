@@ -1,13 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using HomeBankingMindHub.Model.DTO;
+﻿using HomeBankingMindHub.Model.DTO;
 using HomeBankingMindHub.Model.Model.Loan;
 using HomeBankingMindHub.Service.Interface;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HomeBankingMindHub.Controllers;
+namespace ClientService.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -16,9 +12,9 @@ public class LoanController(ILoanService loanService, IClientsLoanService client
     [HttpGet]
     public IActionResult Get()
     {
-        IEnumerable<LoanDTO>? loanDTOs = loanService.GetAll( statusCode: out int statusCode, message : out string? message);
+        IEnumerable<LoanDTO>? loanDTOs = loanService.GetAll(statusCode: out int statusCode, message: out string? message);
 
-        if(loanDTOs is not null)
+        if (loanDTOs is not null)
         {
             return StatusCode(statusCode, loanDTOs);
         }
@@ -30,11 +26,11 @@ public class LoanController(ILoanService loanService, IClientsLoanService client
     {
         ClientsLoanDTO? clientsLoanDTO = clientLoansService.Post(model, User, out int statusCode, out string? message);
 
-        if(clientsLoanDTO is not null)
+        if (clientsLoanDTO is not null)
         {
             return StatusCode(statusCode, clientsLoanDTO);
         }
 
-        return StatusCode(statusCode, message); 
+        return StatusCode(statusCode, message);
     }
 }

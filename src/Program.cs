@@ -1,42 +1,12 @@
-using Microsoft.EntityFrameworkCore.SqlServer;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Design;
-using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.Cookies;
-
-using HomeBankingMindHub.Database;
-using HomeBankingMindHub.Database.Repository;
-using HomeBankingMindHub.Service.Instance;
-using HomeBankingMindHub.Service.Interface;
+using HomeBankingMindHub.Model.Model.Client;
+using System.Text.Json;
+using System.Security.Claims;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
-
-
-// Add services to the container.
-builder.Services.AddDbContext<HomeBankingContext>(options =>
-{
-    options.UseSqlServer(
-    builder.Configuration.GetConnectionString("HomeBankingConnection"));
-    options.EnableDetailedErrors();
-    options.EnableSensitiveDataLogging();
-});
-
-builder.Services.AddScoped<IClientRepository, ClientRepository>();
-builder.Services.AddScoped<IAccountRepository, AccountRepository>();
-builder.Services.AddScoped<ICardRepository, CardRepository>();
-builder.Services.AddScoped<IClientLoanRepository, ClientLoanRepository>();
-builder.Services.AddScoped<ILoanRepository, LoanRepository>();
-builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
-
-builder.Services.AddScoped<ITransactionService, TransactionService>();
-builder.Services.AddScoped<IAccountService, AccountService>();
-builder.Services.AddScoped<IClientService, ClientService>();
-builder.Services.AddScoped<ILoanService, LoanService>();
-builder.Services.AddScoped<IClientsLoanService, ClientsLoanService>();
-builder.Services.AddScoped<ICardService, CardService>();
-builder.Services.AddScoped<IAuthService, AuthService>();
-
-builder.Services.AddControllers();
+IConfiguration Configuration = builder.Configuration;
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
@@ -54,8 +24,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-DBInitialazer.PopulateDB(app);
-
+//DBInitialazer.PopulateDB(app);
 //DBInitialazer.SetAccountBalance();
 
 // Configure the HTTP request pipeline.
@@ -72,7 +41,6 @@ else
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
 
 app.UseRouting();
 
@@ -82,6 +50,121 @@ app.UseAuthentication();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
-app.MapControllers();
+//Client Service endpoints.
+app.MapGet("/api/Client", async () =>
+{
+    HttpClient client = new();
+    using HttpResponseMessage response = await client.GetAsync(Configuration["Services:Client"]);
+    if (response.IsSuccessStatusCode)
+    {
+        return await response.Content.ReadAsStringAsync();
+    }
+    return null;
+});
+app.MapGet("/api/Client/{id}", async (string id) =>
+{
+    HttpClient client = new();
+    using HttpResponseMessage response = await client.GetAsync(Configuration["Services:Client"] + $"/{id}");
+
+    if (response.IsSuccessStatusCode)
+    {
+        return await response.Content.ReadAsStringAsync();
+    }
+    return null;
+});
+
+app.MapPost("/api/Client", async (PostModel model) =>
+{
+    HttpClient client = new();
+    using StringContent content = new(JsonSerializer.Serialize(model));
+    using HttpResponseMessage response = await client.PostAsync(Configuration["Services:Client"], content);
+       
+    if(response.IsSuccessStatusCode)
+    {
+        return await response.Content.ReadAsStringAsync();
+    }
+    return null;
+});
+//Account Service endpoints.
+
+app.MapGet("/api/Account", async () =>
+{
+    HttpClient client = new();
+    using HttpResponseMessage response = await client.GetAsync(Configuration["Services:Client"]);
+
+    if(response.IsSuccessStatusCode)
+    {
+        return await response.Content.ReadAsStringAsync();
+    }
+    return null;
+});
+app.MapGet("/api/Account/{id}", async (string id) =>
+{
+    HttpClient client = new();
+    using HttpResponseMessage response = await client.GetAsync(Configuration["Services:Client" + $"/{id}"]);
+
+    if (response.IsSuccessStatusCode)
+    {
+        return await response.Content.ReadAsStringAsync();
+    }
+    return null;
+});
+app.MapGet("/api/Client/current/account", async (ClaimsPrincipal user) => {
+    string? email = user.FindFirstValue("Client");
+
+    if (!email.IsNullOrEmpty())
+    {
+        HttpClient client = new();
+        using HttpResponseMessage response = await client.GetAsync( requestUri: Configuration["Services:Client"]+ "current/account");
+        return response.Content.ReadAsStringAsync();
+    }
+
+    return null;
+}).RequireAuthorization();
+
+app.MapPost("/api/Client/current/accounts", async (ClaimsPrincipal user) => {
+    string? email = user.FindFirstValue("Client");
+
+    if (!email.IsNullOrEmpty()) 
+    {
+        HttpClient client = new();
+        using StringContent content = new(JsonSerializer.Serialize(email));
+        using HttpResponseMessage response = await client.PostAsync(Configuration["Services:Client"] + "current/accounts", content);
+        return response.Content.ReadAsStringAsync();
+    }
+    return null;
+}).RequireAuthorization();
+//Card Service endpoints.
+
+app.MapGet("/api/Client/current/cards", async (ClaimsPrincipal user) =>
+{
+    string? email = user.FindFirstValue("Client");
+
+    if (!email.IsNullOrEmpty())
+    {
+        HttpClient client = new();
+        using StringContent content = new(JsonSerializer.Serialize(email));
+        using HttpResponseMessage response = await client.PostAsync(Configuration["Services:Client"]+ "current/cards", content);
+
+        if(response.IsSuccessStatusCode)
+        {
+        return response.Content.ReadAsStringAsync();
+        }
+    }
+    return null;
+});
+app.MapPost("/api/Client/current/cards", async (ClaimsPrincipal user) =>
+{
+    string? email = user.FindFirstValue("Client");
+
+    if (!email.IsNullOrEmpty())
+    {
+        HttpClient client = new();
+        using StringContent content = new(JsonSerializer.Serialize(email));
+        using HttpResponseMessage response = await.PostAsync(Configuration["Services:Client"] + "current/cards", content);
+    }
+    return null;
+});
+//Auth Service endpoints.
 
 app.Run();
